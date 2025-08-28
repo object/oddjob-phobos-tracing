@@ -462,7 +462,6 @@ module Config =
             CatalogUsageRights: string
             EventStore: string
             OtelCollector: string
-            GranittMySql: string
             InfluxDBIngesters: string
             PsServiceBus: string
             RadioServiceBus: string
@@ -490,8 +489,6 @@ module Config =
         let RequiredContactPointNumber = "requiredContactPointNumber"
         [<Literal>]
         let EnableQuartzLogging = "enableQuartzLogging"
-        [<Literal>]
-        let DisableGranittUpdate = "disableGranittUpdate"
         [<Literal>]
         let DisablePhobosMetrics = "disablePhobosMetrics"
         [<Literal>]

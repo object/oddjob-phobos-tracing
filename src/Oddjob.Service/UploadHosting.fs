@@ -97,21 +97,6 @@ type AkkaConfigurationBuilder with
                 builder
             else
                 builder
-                    .AddHocon(
-                        """
-                        akka {
-                          actor {
-                            deployment {
-                              "/upload_granitt" {
-                                router = round-robin-pool
-                                nr-of-instances = 5
-                              }
-                            }
-                          }
-                        }
-                        """,
-                        HoconAddMode.Prepend
-                    )
                     .WithSingletonActor<MediaSetStatusPersistanceMarker, MediaSetStatusCommand>(
                         (makeActorName [ "MediaSet Status Persistence" ]),
                         propsNamed "upload-mediaset-status-persistence" <| mediaSetStatusPersistenceActor settings.ConnectionStrings.Akka

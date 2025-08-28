@@ -261,10 +261,7 @@ module MediaSetState =
             GlobalConnect: GlobalConnectActions
         }
 
-        static member Zero =
-            {
-                GlobalConnect = List.empty
-            }
+        static member Zero = { GlobalConnect = List.empty }
 
     [<RequireQualifiedAccess>]
     type ActionSelection =
@@ -272,11 +269,7 @@ module MediaSetState =
         | Content
 
     module ActionSelection =
-        let all =
-            [
-                ActionSelection.GlobalConnect
-                ActionSelection.Content
-            ]
+        let all = [ ActionSelection.GlobalConnect; ActionSelection.Content ]
 
     [<RequireQualifiedAccess>]
     module MediaSetState =
@@ -334,6 +327,4 @@ module MediaSetState =
                     set.Desired |> GlobalConnectActions.forMediaSet globalConnectActionContext mediaSetId set.Current.GlobalConnect
                 else
                     []
-            {
-                GlobalConnect = globalConnectActions
-            }
+            { GlobalConnect = globalConnectActions }

@@ -260,20 +260,17 @@ module HostBuilder =
                     serializers {
                       hyperion = "Akka.Serialization.HyperionSerializer, Akka.Serialization.Hyperion"
                       protobuf-mediaset = "Nrk.Oddjob.Core.Dto.Serialization+ProtobufSerializer, Core"
-                      protobuf-transcoding = "Nrk.Oddjob.Ps.PsPersistence+ProtobufSerializer, Ps"
                       protobuf-potion = "Nrk.Oddjob.Potion.PotionPersistence+ProtobufSerializer, Potion"
                     }
                     serialization-bindings {
                       "System.Object" = hyperion
                       "Nrk.Oddjob.Core.Dto.IProtoBufSerializable, Core" = protobuf-mediaset
-                      "Nrk.Oddjob.Ps.PsPersistence+IProtoBufSerializable, Ps" = protobuf-transcoding
                       "Nrk.Oddjob.Potion.PotionPersistence+IProtoBufSerializable, Potion" = protobuf-potion
                     }
                     serialization-identifiers {
                       "Akka.Serialization.HyperionSerializer, Akka.Serialization.Hyperion" = -5
                       "Akka.Serialization.NewtonSoftJsonSerializer, Akka" = 1
                       "Nrk.Oddjob.Core.Dto.Serialization+ProtobufSerializer, Core" = 126
-                      "Nrk.Oddjob.Ps.PsPersistence+ProtobufSerializer, Ps" = 129
                       "Nrk.Oddjob.Potion.PotionPersistence+ProtobufSerializer, Potion" = 130
                     }
                   }

@@ -1708,10 +1708,7 @@ module MediaSet =
             GlobalConnect: GlobalConnectCommand list
         }
 
-        static member Zero =
-            {
-                GlobalConnect = List.empty
-            }
+        static member Zero = { GlobalConnect = List.empty }
 
     module RemainingActions =
         let fromDomain (actions: MediaSetState.RemainingActions) =

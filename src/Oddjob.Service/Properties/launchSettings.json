@@ -24,7 +24,6 @@
         "Oddjob_ConnectionStrings__SideloadingAzureStorage": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1;",
         "Oddjob_FeatureFlags__requiredContactPointNumber": "1",
         "Oddjob_FeatureFlags__enableDefaultPotionGeoBlock": "true",
-        "Oddjob_FeatureFlags__disableGranittUpdate": "true",
         "Oddjob_FeatureFlags__otelInstrumentation": "Aws,Process,Quartz,RabbitMQ,Runtime,ServiceBus",
         "Oddjob_Vault__Enabled": "false",
         "Oddjob_OddjobSettings__HealthCheck__Components__0__enabled": "false",

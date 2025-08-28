@@ -79,36 +79,6 @@ type AkkaConfigurationBuilder with
             let rabbitMqApi = resolver.GetService<IRabbitMqApi>()
             Cluster.Get(system).RegisterOnMemberUp(fun _ -> rabbitMqApi.AttachConsumer(system, queueCategory, subscriber)))
 
-    member this.WithServiceBusSubscriber<'TShardMarker, 'TSubscriberMarker, 'TShardMessage, 'TQueueMessage>
-        (
-            getServiceBusConfig: OddjobConfig -> OddjobConfig.PsServiceBusListener,
-            startSubscriber: _ -> _ -> IActorRef<QueueMessage<'TShardMessage>> -> _ -> IActorRef<QueueMessage<'TQueueMessage>>,
-            startAdapter
-        ) =
-        this.WithActors(fun system registry resolver ->
-            let scope = resolver.CreateScope().Resolver
-            let shard = registry.Get<'TShardMarker>() |> typed
-            let oddjobConfig = scope.GetService<IOptionsSnapshot<OddjobConfig.Settings>>().Value |> makeOddjobConfig
-            let serviceBusConfig = getServiceBusConfig oddjobConfig
-            let clientFactory = scope.GetService<IAzureClientFactory<ServiceBusClient>>()
-            let serviceBusClient = clientFactory.CreateClient serviceBusConfig.ServiceBusName
-            let queueName = serviceBusConfig.QueueName
-            let subscriber = startSubscriber system oddjobConfig shard (scope.GetService<ActivitySourceContext>())
-            registry.Register<'TSubscriberMarker>(untyped subscriber)
-            let messageAdapter = startAdapter system subscriber
-            let config: ServiceBusAdapter.ServiceBusQueueConfig =
-                {
-                    QueueName = queueName
-                    MaxRetries = 10
-                    NextTimeout =
-                        fun retryNumber ->
-                            if retryNumber < 3 then TimeSpan.FromMinutes(5.)
-                            else if retryNumber < 6 then TimeSpan.FromHours(1.)
-                            else TimeSpan.FromHours(5.)
-                }
-            let messageProcessor = ServiceBusAdapter.ServiceBusMessageProcessor(serviceBusClient, system, config)
-            Cluster.Get(system).RegisterOnMemberUp(fun _ -> messageProcessor.Start(messageAdapter)))
-
 type IServiceCollection with
 
     member this.BindSection<'TKey when 'TKey: not struct>(configRoot: IConfigurationRoot, sectionName) =

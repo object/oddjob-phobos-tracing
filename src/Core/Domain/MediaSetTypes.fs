@@ -618,7 +618,7 @@ module MediaSetTypes =
             let newVersion = newLinks |> List.map _.Version |> List.tryMaxBy id
 
             match oldVersion, newVersion with
-            | Some ov, Some nv when ov = 0 || nv > ov -> { chunk with SubtitlesLinks = newLinks } // Note: always update if version was 0, e.g. granitt subs
+            | Some ov, Some nv when ov = 0 || nv > ov -> { chunk with SubtitlesLinks = newLinks }
             | None, Some _ -> { chunk with SubtitlesLinks = newLinks }
             | Some _, Some _
             | Some _, None

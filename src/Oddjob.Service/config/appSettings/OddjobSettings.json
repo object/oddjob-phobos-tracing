@@ -383,11 +383,6 @@
           "enabled": true
         },
         {
-          "name": "Granitt",
-          "intervalSeconds": 300,
-          "enabled": true
-        },
-        {
           "name": "GlobalConnect",
           "intervalSeconds": 300,
           "enabled": true
