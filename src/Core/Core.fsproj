@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <OtherFlags>$(OtherFlags) --test:GraphBasedChecking --test:ParallelOptimization --test:ParallelIlxGen</OtherFlags>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>FS0044</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>FS0044</NoWarn>
+  </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Akka" Version="1.5.48" />
+        <PackageReference Include="Akka.Cluster.Sharding" Version="1.5.48" />
+        <PackageReference Include="Akka.Logger.Serilog" Version="1.5.25" />
+        <PackageReference Include="Akka.Quartz.Actor" Version="1.5.13" />
+        <PackageReference Include="Akkling" Version="0.17.0" />
+        <PackageReference Include="Akkling.Cluster.Sharding" Version="0.17.0" />
+        <PackageReference Include="AWSSDK.S3" Version="3.7.411.7" />
+        <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
+        <PackageReference Include="ConfigCat.Client" Version="9.3.2" />
+        <PackageReference Include="Dapper" Version="2.1.66" />
+        <PackageReference Include="FSharp.Data" Version="6.6" />
+        <PackageReference Include="FSharpx.Collections" Version="3.1" />
+        <PackageReference Include="FsHttp" Version="15.0.1" />
+        <PackageReference Include="FsToolkit.ErrorHandling" Version="4.18.0" />
+        <PackageReference Include="Giraffe" Version="8.0.0-alpha-003" />
+        <PackageReference Include="InfluxDB.Collector" Version="1.1.1" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
+        <PackageReference Include="Microsoft.FSharpLu.Json" Version="0.11.7" />
+        <PackageReference Include="FSharp.SystemTextJson" Version="1.3.13" />
+        <PackageReference Include="MySqlConnector" Version="2.3.7" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="protobuf-net" Version="3.2.30" />
+        <PackageReference Include="Quartz" Version="3.14.0" />
+        <PackageReference Include="Quartz.Serialization.Json" Version="3.13.1" />
+        <PackageReference Include="RabbitMQ.Client" Version="7.1.0" />
+        <PackageReference Include="RabbitMQ.Client.OpenTelemetry" Version="1.0.0-rc.1" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="6.0" />
+        <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+        <PackageReference Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
+        <PackageReference Include="SharpYaml" Version="2.1.1" />
+        <PackageReference Include="Phobos.Actor.Cluster" Version="2.9.0" />
+        <PackageReference Include="OpenTelemetry" Version="1.12.0" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0" />
+        <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
+        <PackageReference Update="FSharp.Core" Version="9.0.300" />
+        <PackageReference Include="System.Net.Http" Version="4.3.4" />
+        <PackageReference Include="System.Text.Json" Version="9.0.0" />
+        <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+    </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Config.fs" />
+    <Compile Include="Common/Extensions.fs" />
+    <Compile Include="Common\DapperExtensions.fs" />
+    <Compile Include="Common\Utils.fs" />
+    <Compile Include="Common/CommonTypes.fs" />
+    <Compile Include="Common/MessageTypes.fs" />
+    <Compile Include="Common\GiraffeUtils.fs" />
+    <Compile Include="Common\Instrumentation.fs" />
+    <Compile Include="Common/ActorUtils.fs" />
+    <Compile Include="Common/Logging.fs" />
+    <Compile Include="Common\Http.fs" />
+    <Compile Include="Common\FileSystem.fs" />
+    <Compile Include="Common\Serialization.fs" />
+    <Compile Include="Common\FilePath.fs" />
+    <Compile Include="Common\XmlTypes.fs" />
+    <Compile Include="Common\SmilTypes.fs" />
+    <Compile Include="Domain/CoreTypes.fs" />
+    <Compile Include="Domain\SubtitlesRules.fs" />
+    <Compile Include="Domain\MediaSetTypes.fs" />
+    <Compile Include="Domain\MediaSetMessages.fs" />
+    <Compile Include="Domain\GlobalConnectCommands.fs" />
+    <Compile Include="Domain\JobTypes.fs" />
+    <Compile Include="Domain\ActionContext.fs" />
+    <Compile Include="Domain\GlobalConnectActions.fs" />
+    <Compile Include="Domain\ContentActions.fs" />
+    <Compile Include="Domain\MediaSetState.fs" />
+    <Compile Include="Domain\MediaSetActions.fs" />
+    <Compile Include="Domain\MediaSetRetention.fs" />
+    <Compile Include="Domain/Events.fs" />
+    <Compile Include="Dto\ProtoBuf.fs" />
+    <Compile Include="Dto\MediaSet.fs" />
+    <Compile Include="Dto\Events.fs" />
+    <Compile Include="Dto\Serialization.fs" />
+    <Compile Include="Granitt/Granitt.fs" />
+    <Content Include="Queues/Resources/QueueStats.json" />
+    <Compile Include="Queues/QueueResources.fs" />
+    <Compile Include="Queues/QueueApi.fs" />
+    <Compile Include="Queues/QueueUtils.fs" />
+    <Compile Include="Queues/QueueActors.fs" />
+    <Compile Include="Queues/QueueApiImpl.fs" />
+    <Compile Include="Queues\ServiceBusAdapter.fs" />
+    <Compile Include="S3\S3Types.fs" />
+    <Compile Include="S3\S3Api.fs" />
+    <Compile Include="Manifests/HlsManifest.fs" />
+    <Compile Include="Manifests\DashManifest.fs" />
+    <Compile Include="Manifests\MediaManifest.fs" />
+    <Compile Include="HelperActors\PriorityQueueActor.fs" />
+    <Compile Include="ShardMessages.fs" />
+    <Compile Include="Reminders.fs" />
+    <Compile Include="SchedulerActors.fs" />
+    <Compile Include="ProtoBufUtils.fs" />
+    <Compile Include="ClusterShards.fs" />
+    <Compile Include="PubSub.fs" />
+    <Compile Include="MessageAcker.fs" />
+    <Compile Include="MediaSetStateCache.fs" />
+    <Compile Include="JournalEventDeletion.fs" />
+  </ItemGroup>
+</Project>

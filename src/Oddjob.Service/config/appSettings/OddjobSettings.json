@@ -1,0 +1,437 @@
+﻿{
+  "OddjobSettings": {
+    "Features": {
+      "RecreateIncompatibleQueues": false,
+      "UseQuorumQueues": true
+    },
+    "Limits": {
+      "DefaultHttpConnectionLimit": 100,
+      "QueuePrefetchCount": 50,
+      "QueueRetryCount": 3,
+      "QueueMessageExpiryTimeInMinutes": 30,
+      "QueueMessageExpiryCheckEveryMinutes": 1,
+      "MissingFilesRetryIntervalInMinutes": [
+        5,
+        5,
+        5,
+        15,
+        30,
+        120,
+        180,
+        360,
+        720
+      ],
+      "FailingFilesRetryIntervalInMinutes": [
+        1,
+        2,
+        5,
+        10,
+        20
+      ],
+      "RequestProgramIdRetryIntervalInMinutes": [
+        1,
+        1,
+        1,
+        60,
+        120,
+        180,
+        360,
+        720,
+        1440,
+        1440
+      ],
+      "MediaSetMonitorQueriesPerMinute": 1,
+      "MediaSetMonitorRepairsPerMinute": 60,
+      "MediaSetMonitorRecentWindowInMinutes": 60,
+      "MediaSetMonitorMaxRetries": 10,
+      "MediaSetPassivationTimeoutOnActivationInMinutes": 5,
+      "MediaSetPassivationTimeoutOnCommandsInMinutes": 30,
+      "OriginStorageCleanupIntervalInHours": 1,
+      "PlaybackIdleStateTimeoutIntervalInSeconds": 10,
+      "PlaybackCompletionReminderIntervalInMinutes": 15,
+      "PlaybackCompletionExpiryIntervalInHours": 2,
+      "PlaybackEventsRetentionPeriodInDays": 1,
+      "ClearMediaSetReminderIntervalInHours": 24,
+      "PublishConfirmationTimeoutInSeconds": 30,
+      "AskTimeoutInSeconds": 30,
+      "ReminderAckTimeoutInSeconds": 60,
+      "ExternalRequestTimeoutInSeconds": 60,
+      "TranscodingReminderIntervalInMinutes": 60,
+      "TranscodingReminderTimeoutInDays": 1,
+      "PotionCompletionReminderIntervalInMinutes": 15,
+      "PotionCompletionExpiryIntervalInHours": 2,
+      "WebApiRouterIntervalBetweenRequestsInMilliseconds": 100
+    },
+    "Origins": [
+      {
+        "name": "GlobalConnect",
+        "enable": true
+      }
+    ],
+    "PathMappings": [
+      [
+        "\\\\felles.ds.nrk.no\\nrk\\produksjonsdata\\odadistribusjon\\",
+        "/mnt/felles/nrk/produksjonsdata/odadistribusjon/"
+      ],
+      [
+        "\\\\maodatest03.felles.ds.nrk.no\\MediaShare\\",
+        "/mnt/maodatest03/MediaShare/"
+      ],
+      [
+        "\\\\felles.ds.nrk.no\\produksjon\\potion\\",
+        "/mnt/felles/produksjon/potion/"
+      ],
+      [
+        "\\\\manas01.felles.ds.nrk.no\\Media_share\\",
+        "/mnt/manas01/Media_share/"
+      ]
+    ],
+    "Potion": {
+      "NumberOfShards": 10,
+      "RetentionPeriod": {
+        "Sources": [
+          {
+            "source": "*",
+            "days": 1
+          }
+        ]
+      },
+      "SkipNotificationForSources": [
+        "dm.potion.commands.prod@/vjeitiyo",
+        "storage-cleanup"
+      ],
+      "Mdb": {
+        "Url": "http://mdbklippdev.felles.ds.nrk.no/",
+        "ForwardedFrom": "http://mdbklipp.felles.ds.nrk.no/"
+      },
+      "Publication": {
+        "Url": "http://flask-dev.mesosint.nrk.no/",
+        "ForwardedFrom": "http://potion.felles.ds.nrk.no/"
+      },
+      "MessagePriorities": [
+        {
+          "source": "potion",
+          "priority": 4
+        },
+        {
+          "source": "oddjob web api",
+          "priority": 5
+        },
+        {
+          "source": "*",
+          "priority": 1
+        }
+      ],
+      "PendingCommandsRetryIntervalInMinutes": [
+        10,
+        15,
+        30,
+        60
+      ]
+    },
+    "Ps": {
+      "NumberOfShards": 10,
+      "RetentionPeriod": {
+        "Sources": [
+          {
+            "source": "*",
+            "days": 1
+          }
+        ],
+        "ExceptWindows": "\\\\maodatest03.felles.ds.nrk.no\\MediaShare\\RetentionExceptions.Test.yaml",
+        "ExceptLinux": "/mnt/mediashare/RetentionExceptions.Test.yaml"
+      },
+      "ForceOperationForSources": [
+        "oddjob web api"
+      ],
+      "MediaFiles": {
+        "DestinationRoot": "\\\\felles.ds.nrk.no\\nrk\\produksjonsdata\\odadistribusjon\\",
+        "UseDestinationRoot": false,
+        "DropFolder": "\\\\felles.ds.nrk.no\\nrk\\produksjonsdata\\odadistribusjon\\_incoming\\",
+        "UseDropFolder": false,
+        "CheckTranscodingLocation": true,
+        "ArchiveRoot": "\\\\felles.ds.nrk.no\\nrk\\produksjonsdata\\odadistribusjon\\",
+        "AlternativeArchiveRoot": "\\\\maodatest03.felles.ds.nrk.no\\MediaShare\\",
+        "ArchiveTimeouts": [
+          {
+            "size": 10,
+            "timeout": 60
+          },
+          {
+            "size": 50,
+            "timeout": 180
+          },
+          {
+            "size": 0,
+            "timeout": 300
+          }
+        ]
+      },
+      "UploadProgramBeforePublishTimeInHours": 24,
+      "RemoveProgramAfterExpirationTimeInHours": 0,
+      "MessagePriorities": {
+        "Sources": [
+          {
+            "source": "prf",
+            "rights": "activeSince",
+            "hours": "0-24",
+            "priority": 4
+          },
+          {
+            "source": "prf",
+            "rights": "activeSince",
+            "hours": "*",
+            "priority": 3
+          },
+          {
+            "source": "prf",
+            "rights": "activeAfter",
+            "hours": "0-6",
+            "priority": 4
+          },
+          {
+            "source": "prf",
+            "rights": "activeAfter",
+            "hours": "6-24",
+            "priority": 3
+          },
+          {
+            "source": "prf",
+            "rights": "activeAfter",
+            "hours": "*",
+            "priority": 2
+          },
+          {
+            "source": "bridge",
+            "rights": "activeSince",
+            "hours": "0-24",
+            "priority": 4
+          },
+          {
+            "source": "bridge",
+            "rights": "activeSince",
+            "hours": "*",
+            "priority": 3
+          },
+          {
+            "source": "bridge",
+            "rights": "activeAfter",
+            "hours": "0-6",
+            "priority": 4
+          },
+          {
+            "source": "bridge",
+            "rights": "activeAfter",
+            "hours": "6-24",
+            "priority": 3
+          },
+          {
+            "source": "bridge",
+            "rights": "activeAfter",
+            "hours": "*",
+            "priority": 2
+          },
+          {
+            "source": "radioarkiv",
+            "rights": "activeSince",
+            "hours": "0-24",
+            "priority": 4
+          },
+          {
+            "source": "radioarkiv",
+            "rights": "activeSince",
+            "hours": "*",
+            "priority": 3
+          },
+          {
+            "source": "radioarkiv",
+            "rights": "activeAfter",
+            "hours": "0-6",
+            "priority": 4
+          },
+          {
+            "source": "radioarkiv",
+            "rights": "activeAfter",
+            "hours": "6-24",
+            "priority": 3
+          },
+          {
+            "source": "radioarkiv",
+            "rights": "activeAfter",
+            "hours": "*",
+            "priority": 2
+          },
+          {
+            "source": "subtitles",
+            "rights": "activeSince",
+            "hours": "0-24",
+            "priority": 4
+          },
+          {
+            "source": "subtitles",
+            "rights": "activeSince",
+            "hours": "*",
+            "priority": 3
+          },
+          {
+            "source": "subtitles",
+            "rights": "activeAfter",
+            "hours": "0-6",
+            "priority": 4
+          },
+          {
+            "source": "subtitles",
+            "rights": "activeAfter",
+            "hours": "6-24",
+            "priority": 3
+          },
+          {
+            "source": "subtitles",
+            "rights": "activeAfter",
+            "hours": "*",
+            "priority": 2
+          },
+          {
+            "source": "oddjob web api",
+            "rights": "*",
+            "hours": "*",
+            "priority": 5
+          },
+          {
+            "source": "*",
+            "rights": "*",
+            "priority": 1
+          }
+        ],
+        "ExceptionsWindows": "\\\\maodatest03.felles.ds.nrk.no\\MediaShare\\HighPriorityExceptions.Test.yaml",
+        "ExceptionsLinux": "/mnt/mediashare/HighPriorityExceptions.Test.yaml",
+        "ExceptionsPriority": 4,
+        "ExceptionsCutoffInDays": 1
+      },
+      "RadioTranscodingListener": {
+        "QueueName": "oddjob-test",
+        "ServiceBusName": "RadioServiceBus"
+      },
+      "UsageRightsListener": {
+        "QueueName": "oddjob-usagerights-test",
+        "ServiceBusName": "PsServiceBus"
+      },
+      "PlaybackEvents": {
+        "Topic": "program-playback-changes-v1",
+        "ServiceBusName": ""
+      },
+      "DistributionStatusEvents": {
+        "Topic": "ps-metadata-distribution-status",
+        "ServiceBusName": "PsServiceBus"
+      }
+    },
+    "Upload": {
+      "NumberOfShards": 10,
+      "SkipProcessingForSources": [],
+      "MinimumMessagePriority": 0
+    },
+    "Subtitles": {
+      "BaseURL": "https://undertekst-stage.nrk.no/",
+      "BaseUrlTvSubtitles": "https://undertekst.nrk.no/",
+      "SourceRootWindows": "\\\\manas01\\flyttekst\\prod\\",
+      "SourceRootLinux": "/mnt/subtitles/",
+      "DestinationRootWindows": "\\\\maodatest03.felles.ds.nrk.no\\MediaShare\\TEST\\",
+      "DestinationRootLinux": "/mnt/mediashare/TEST/"
+    },
+    "S3": {
+      "BucketName": "nrk-origin-test",
+      "NumberOfIngesters": 20,
+      "ConcurrentServiceRequests": 100
+    },
+    "Radio": {
+      "FilesSelector": [
+        {
+          "label": "ID64AAC",
+          "bitRate": 64
+        },
+        {
+          "label": "ID192AAC",
+          "bitRate": 192
+        }
+      ]
+    },
+    "WebApi": {
+      "PortNumber": 1953,
+      "SocketPortNumber": 1954,
+      "EnableDeveloperEndpoints": true
+    },
+    "HealthCheck": {
+      "Components": [
+        {
+          "name": "ServiceBus",
+          "intervalSeconds": 300,
+          "enabled": true
+        },
+        {
+          "name": "RabbitMQ",
+          "intervalSeconds": 300,
+          "enabled": true
+        },
+        {
+          "name": "QueueHealth",
+          "intervalSeconds": 300,
+          "enabled": true
+        },
+        {
+          "name": "S3Health",
+          "intervalSeconds": 300,
+          "enabled": true
+        },
+        {
+          "name": "Granitt",
+          "intervalSeconds": 300,
+          "enabled": true
+        },
+        {
+          "name": "GlobalConnect",
+          "intervalSeconds": 300,
+          "enabled": true
+        },
+        {
+          "name": "Archive",
+          "intervalSeconds": 300,
+          "enabled": true
+        },
+        {
+          "name": "Queues",
+          "intervalSeconds": 300,
+          "enabled": true
+        },
+        {
+          "name": "Cluster",
+          "intervalSeconds": 300,
+          "enabled": true
+        },
+        {
+          "name": "Reminders",
+          "intervalSeconds": 300,
+          "enabled": true
+        },
+        {
+          "name": "SourceRoots",
+          "intervalSeconds": 300,
+          "enabled": true
+        },
+        {
+          "name": "RadioArchive",
+          "intervalSeconds": 300,
+          "enabled": true
+        },
+        {
+          "name": "Oddjob",
+          "intervalSeconds": 300,
+          "enabled": true
+        }
+      ],
+      "TooManyReminders": 10000
+    },
+    "Instrumentation": {
+      "EnablePhobos": true
+    }
+  }
+}

@@ -1,0 +1,97 @@
+name: system-tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 1-5'
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  OCTOPUS_API_KEY: ${{ secrets.OCTOPUS_API_KEY }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+  NRK_GITHUB_TOKEN: ${{ secrets.PLATTFORM_GITHUB_PACKAGES_READ_TOKEN }}
+  PHOBOS_NUGET_PASSWORD: ${{ secrets.PHOBOS_NUGET_PASSWORD }}
+  PHOBOS_NUGET_USERNAME: ${{ secrets.PHOBOS_NUGET_USERNAME }}
+
+jobs:
+  build-system-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
+
+      - name: restore tools
+        run: dotnet tool restore
+        
+      - name: create SystemTests artifact
+        run: dotnet publish ./tests/SystemTests/ -r linux-x64 --self-contained --configuration Release --output dist/
+
+      - uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r oddjob-system-tests.zip dist
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: oddjob-system-tests
+          path: oddjob-system-tests.zip
+          retention-days: 1
+  
+  run-system-tests:
+    runs-on: [ nrk-azure-intern, linux ]
+    needs: build-system-tests
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      actions: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: oddjob-system-tests
+
+      - uses: montudor/action-zip@v1
+        with:
+          args: unzip -qq oddjob-system-tests.zip -d oddjob-system-tests
+
+      - name: setup github jwt vars
+        uses: actions/github-script@v7
+        id: script
+        timeout-minutes: 10
+        with:
+          debug: true
+          script: |
+            const token = process.env['ACTIONS_RUNTIME_TOKEN']
+            const runtimeUrl = process.env['ACTIONS_ID_TOKEN_REQUEST_URL']
+            core.setOutput('TOKEN', token.trim())
+            core.setOutput('IDTOKENURL', runtimeUrl.trim())
+
+      - name: fetch Github JWT
+        id: jwt
+        run: |
+          IDTOKEN=$(curl -H "Authorization: bearer  ${{steps.script.outputs.TOKEN}}" ${{steps.script.outputs.IDTOKENURL}}  -H "Accept: application/json; api-version=2.0" -H "Content-Type: application/json" -d "{}" | jq -r '.value')
+          echo "Oddjob_Vault__Authentication__Token=${IDTOKEN}" >> "$GITHUB_ENV"
+      
+      - name: Run system tests
+        run: |
+          ./oddjob-system-tests/dist/SystemTests -env test -timeout 5 --nunit-summary TestResults.xml
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          comment_mode: off
+          files: |
+            TestResults.xml

@@ -1,0 +1,71 @@
+volumes:
+  logs:
+  traces:
+  metrics:
+
+services:
+  # Tempo runs as user 10001, and docker compose creates the volume as root.
+  # As such, we need to chown the volume in order for Tempo to start correctly.
+  init:
+    image: &tempoImage grafana/tempo:r208-831df1f
+    user: root
+    entrypoint:
+      - "chown"
+      - "10001:10001"
+      - "/var/tempo"
+    volumes:
+      - traces:/var/tempo
+
+  tempo:
+    image: *tempoImage
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./tempo/tempo.yaml:/etc/tempo.yaml
+      - traces:/var/tempo
+    depends_on:
+      - init
+
+  prometheus:
+    image: prom/prometheus:v2.53.5
+    command:
+      - --config.file=/etc/prometheus.yaml
+      - --web.enable-remote-write-receiver
+      - --enable-feature=exemplar-storage
+      - --enable-feature=native-histograms
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus.yaml
+      - metrics:/prometheus
+
+  loki:
+    image: grafana/loki:3.5.2
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - logs:/loki
+      - ./loki/config.yaml:/etc/loki/local-config.yaml
+
+  grafana:
+    image: grafana/grafana:12.0.2
+    volumes:
+      - ./grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - ./grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yaml
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor
+    ports:
+      - 3000:3000
+  
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.86.0
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    depends_on:
+      - tempo
+      - loki
+    ports:
+      - 4317:4317

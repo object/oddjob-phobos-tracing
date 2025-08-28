@@ -1,0 +1,16 @@
+.github/
+.idea/
+.nuget/
+packages/
+scripts/
+sql/
+tests/
+tools/
+.editorconfig
+.fantomasignore
+.gitattributes
+.gitignore
+azure-pipelines.yml
+*.DotSettings.user
+README.md
+template.nuspec

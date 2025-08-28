@@ -1,0 +1,175 @@
+name: Lint and test
+on:
+  pull_request:
+    types: [ opened, synchronize]
+  workflow_dispatch:
+  push:
+    branches: [master]
+permissions:
+  contents: write
+  pull-requests: write
+  repository-projects: write
+  checks: write
+  actions: read
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  OCTOPUS_API_KEY: ${{ secrets.OCTOPUS_API_KEY }}
+  OCTOPUS_URL: ${{ vars.OCTOPUS_URL }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+  NRK_GITHUB_TOKEN: ${{ secrets.PLATTFORM_GITHUB_PACKAGES_READ_TOKEN }}
+  PHOBOS_NUGET_PASSWORD: ${{ secrets.PHOBOS_NUGET_PASSWORD }}
+  PHOBOS_NUGET_USERNAME: ${{ secrets.PHOBOS_NUGET_USERNAME }}
+    
+jobs:
+  # JOB to run change detection
+  changes:
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    # Required permissions
+    permissions:
+      pull-requests: read
+      contents: read
+    # Set job outputs to values from filter step
+    outputs:
+      oddjob: ${{ steps.filter.outputs.oddjob }}
+      fsharp: ${{ steps.filter.outputs.fsharp }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            oddjob:
+              - 'src/**'
+              - 'tests/**'
+              - 'Odd.sln'
+            fsharp: 
+              - '**.fs'
+              - '**.fsx'
+              - '**.fsi'
+  restore:
+    name: 🤖 Update Nuget Lock files for dependabot
+    needs: changes
+    if: ${{ contains(github.head_ref, 'dependabot') && github.event_name == 'pull_request' && needs.changes.outputs.oddjob == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: 🔒 Restore Lock File
+        run: dotnet restore --force-evaluate
+
+      - id: diff
+        continue-on-error: true
+        run: |
+          git add -N .
+          git diff --name-only --exit-code
+      - if: steps.diff.outcome == 'failure'
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add .
+          git commit -m "chore(deps): update NuGet lock file"
+          git push
+    
+  lint:
+    needs: 
+      - restore
+      - changes
+    if: ${{ always() && (needs.changes.outputs.fsharp == 'true' || github.event_name != 'pull_request') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+        
+      - name: restore tools
+        run: dotnet tool restore
+
+      - name: run fantomas
+        run: dotnet fantomas --check .
+            
+  
+  build:
+    needs:
+      - restore
+      - changes
+    if: ${{ always() && (needs.changes.outputs.oddjob == 'true' || github.event_name != 'pull_request') }}
+    concurrency:
+      group: ${{ github.ref }}
+      cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
+      
+      - name: run dotnet build
+        run: dotnet build -restoreProperty:RestoreLockedMode=true
+
+  unit-tests:
+    needs:
+      - restore
+      - changes
+    if: ${{ always() && (needs.changes.outputs.oddjob == 'true' || github.event_name != 'pull_request') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+          
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+          
+      - name: run unit tests
+        run: dotnet test --logger "trx" --results-directory ./TestResults tests/UnitTests/UnitTests.fsproj
+      
+      - name: Test Report
+        uses: dorny/test-reporter@v2
+        if: always()
+        with:
+          name: NUnit Test Results
+          path: TestResults/*.trx
+          reporter: dotnet-trx
+  
+  integration-tests:
+    needs:
+      - restore
+      - changes
+    if: ${{ always() && (needs.changes.outputs.oddjob == 'true' || github.event_name != 'pull_request') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+          
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+          
+      - name: run integration tests
+        run: dotnet test --logger "trx" --results-directory ./TestResults tests/IntegrationTests/IntegrationTests.fsproj
+
+      - name: Test Report
+        uses: dorny/test-reporter@v2
+        if: always()
+        with:
+          name: NUnit Test Results
+          path: TestResults/*.trx
+          reporter: dotnet-trx

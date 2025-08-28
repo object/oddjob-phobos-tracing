@@ -1,0 +1,90 @@
+{
+	"UserConfig": {
+		"Namespaces": [
+			{
+				"Name": "sbemulatorns",
+				"Queues": [
+					{
+						"Name": "oddjob-test",
+						"Properties": {
+							"DeadLetteringOnMessageExpiration": false,
+							"DefaultMessageTimeToLive": "PT1H",
+							"DuplicateDetectionHistoryTimeWindow": "PT20S",
+							"ForwardDeadLetteredMessagesTo": "",
+							"ForwardTo": "",
+							"LockDuration": "PT1M",
+							"MaxDeliveryCount": 3,
+							"RequiresDuplicateDetection": false,
+							"RequiresSession": false
+						}
+					},
+					{
+						"Name": "oddjob-usagerights-test",
+						"Properties": {
+							"DeadLetteringOnMessageExpiration": false,
+							"DefaultMessageTimeToLive": "PT1H",
+							"DuplicateDetectionHistoryTimeWindow": "PT20S",
+							"ForwardDeadLetteredMessagesTo": "",
+							"ForwardTo": "",
+							"LockDuration": "PT1M",
+							"MaxDeliveryCount": 3,
+							"RequiresDuplicateDetection": false,
+							"RequiresSession": false
+						}
+					}
+				],
+				"Topics": [
+					{
+						"Name": "program-playback-changes-v1",
+						"Properties": {
+							"DefaultMessageTimeToLive": "PT1H",
+							"DuplicateDetectionHistoryTimeWindow": "PT20S",
+							"RequiresDuplicateDetection": false
+						},
+						"Subscriptions": [
+							{
+								"Name": "subscription.1",
+								"Properties": {
+									"DeadLetteringOnMessageExpiration": false,
+									"DefaultMessageTimeToLive": "PT1H",
+									"LockDuration": "PT1M",
+									"MaxDeliveryCount": 3,
+									"ForwardDeadLetteredMessagesTo": "",
+									"ForwardTo": "",
+									"RequiresSession": false
+								},
+								"Rules": []
+							}
+						]
+					},
+					{
+						"Name": "ps-metadata-distribution-status",
+						"Properties": {
+							"DefaultMessageTimeToLive": "PT1H",
+							"DuplicateDetectionHistoryTimeWindow": "PT20S",
+							"RequiresDuplicateDetection": false
+						},
+						"Subscriptions": [
+							{
+								"Name": "subscription.2",
+								"Properties": {
+									"DeadLetteringOnMessageExpiration": false,
+									"DefaultMessageTimeToLive": "PT1H",
+									"LockDuration": "PT1M",
+									"MaxDeliveryCount": 3,
+									"ForwardDeadLetteredMessagesTo": "",
+									"ForwardTo": "",
+									"RequiresSession": false
+								},
+								"Rules": []
+							}
+						]
+					}
+				]
+			}
+		],
+		"Logging": {
+			"Type": "Console"
+		}
+	}
+}

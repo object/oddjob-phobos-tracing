@@ -1,0 +1,6 @@
+services:
+  oddjob:
+    volumes:
+        - ${ODADISTRIBUSJON_VOLUME_LOCATION}:/mnt/nrk/produksjonsdata/odadistribusjon
+        - ${POTION_VOLUME_LOCATION}:/mnt/felles/produksjon/potion
+

@@ -1,0 +1,4 @@
+assembly-informational-format: '{InformationalVersion}'
+assembly-versioning-format: '{Major}.{Minor}.{CommitsSinceVersionSource}.0'
+assembly-file-versioning-format: '{Major}.{Minor}.{CommitsSinceVersionSource}.0'
+mode: ContinuousDeployment

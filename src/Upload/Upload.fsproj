@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <OtherFlags>$(OtherFlags) --test:GraphBasedChecking --test:ParallelOptimization --test:ParallelIlxGen</OtherFlags>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Akka" Version="1.5.48" />
+        <PackageReference Include="Akka.Cluster.Sharding" Version="1.5.48" />
+        <PackageReference Include="Akkling" Version="0.17.0" />
+        <PackageReference Include="Akkling.Persistence" Version="0.17.0" />
+        <PackageReference Include="FSharpx.Collections" Version="3.1" />
+        <PackageReference Include="FsToolkit.ErrorHandling" Version="4.18.0" />
+        <PackageReference Include="MySqlConnector" Version="2.3.7" />
+        <PackageReference Include="Phobos.Actor.Cluster" Version="2.9.0" />
+        <PackageReference Update="FSharp.Core" Version="9.0.300" />
+    </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Granitt.fs" />
+    <Compile Include="UploadTypes.fs" />
+    <Compile Include="Persistence.fs" />
+    <Compile Include="MediaSetStatusPersistence.fs" />
+    <Compile Include="MediaSetPublisher.fs" />
+    <Compile Include="ContentRepair.fs" />
+    <Compile Include="MediaSetController.fs" />
+    <Compile Include="UploadEventPublisher.fs" />
+    <Compile Include="UploadUtils.fs" />
+    <Compile Include="MediaSetMonitor.fs" />
+    <Compile Include="UploadBootstrapper.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Core/Core.fsproj" />
+  </ItemGroup>
+</Project>

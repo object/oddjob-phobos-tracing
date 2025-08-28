@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <OtherFlags>$(OtherFlags) --test:GraphBasedChecking --test:ParallelOptimization --test:ParallelIlxGen</OtherFlags>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Akka" Version="1.5.48" />
+        <PackageReference Include="Akka.Persistence.Sql" Version="1.5.44" />
+        <PackageReference Include="Akkling" Version="0.17.0" />
+        <PackageReference Include="Akkling.Persistence" Version="0.17.0" />
+        <PackageReference Include="Elmish.Bridge.Giraffe" Version="7.0.1" />
+        <PackageReference Include="Giraffe" Version="8.0.0-alpha-003" />
+        <PackageReference Include="Giraffe.OpenApi" Version="0.0.2" />
+        <PackageReference Include="NETStandard.Library" Version="2.0.3" />
+        <PackageReference Include="RabbitMQ.Client" Version="7.1.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.1" />
+        <PackageReference Include="Thoth.Json.Giraffe" Version="6.0" />
+        <PackageReference Include="FSharp.SystemTextJson" Version="1.3.13" />
+        <PackageReference Update="FSharp.Core" Version="9.0.300" />
+    </ItemGroup>
+  <ItemGroup>
+    <Compile Include="PublicTypes.fs" />
+    <Compile Include="HealthCheckTypes.fs" />
+    <Compile Include="EventJournalUtils.fs" />
+    <Compile Include="PartUtils.fs" />
+    <Compile Include="PsGranitt.fs" />
+    <Compile Include="PsUtils.fs" />
+    <Compile Include="S3Health.fs" />
+    <Compile Include="PotionUtils.fs" />
+    <Compile Include="GlobalConnect.fs" />
+    <Compile Include="QueueUtils.fs" />
+    <Compile Include="ClusterState.fs" />
+    <Compile Include="WebAppUtils.fs" />
+    <Compile Include="MediaSetUtils.fs" />
+    <Compile Include="RecentStatus.fs" />
+    <Compile Include="IngesterStatus.fs" />
+    <Compile Include="Reminders.fs" />
+    <Compile Include="ReminderUtils.fs" />
+    <Compile Include="HealthCheck.fs" />
+    <Compile Include="SystemTextJson.fs" />
+    <Compile Include="SwaggerTypes.fs" />
+    <Compile Include="EndpointsMetadata.fs" />
+    <Compile Include="Endpoints.fs" />
+    <Compile Include="WebApp.fs" />
+    <Compile Include="SocketMessages.fs" />
+    <Compile Include="PubSubSubscriber.fs" />
+    <Compile Include="SocketApp.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Core/Core.fsproj" />
+    <ProjectReference Include="../Upload/Upload.fsproj" />
+    <ProjectReference Include="../Ps/Ps.fsproj" />
+    <ProjectReference Include="../Potion/Potion.fsproj" />
+    <ProjectReference Include="..\Ingesters.GlobalConnect\Ingesters.GlobalConnect.fsproj" />
+    <ProjectReference Include="..\Upload.GlobalConnect\Upload.GlobalConnect.fsproj" />
+  </ItemGroup>
+</Project>

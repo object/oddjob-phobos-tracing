@@ -1,0 +1,17 @@
+name: Add opened issues to Filopplasting Github Project
+
+on:
+  issues:
+    types:
+      - opened
+      
+jobs:
+  add-to-project:
+    name: Add issue to project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add to filopplasting project
+        uses: actions/add-to-project@main
+        with:
+          project-url: https://github.com/orgs/nrkno/projects/21
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

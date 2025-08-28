@@ -1,0 +1,255 @@
+{
+  "consumer_details": [
+    {
+      "arguments": {},
+      "channel_details": {
+        "peer_host": "160.67.141.249",
+        "peer_port": 60178,
+        "connection_name": "160.67.141.249:60178 -> 160.67.149.173:5672",
+        "user": "admin",
+        "number": 1,
+        "node": "rabbit@malxodamqstage03",
+        "name": "160.67.141.249:60178 -> 160.67.149.173:5672 (1)"
+      },
+      "prefetch_count": 0,
+      "ack_required": true,
+      "exclusive": false,
+      "consumer_tag": "amq.ctag-2K7rOIUhpeBurXZAFUzPeA",
+      "queue": {
+        "vhost": "/",
+        "name": "oddjob.upload.origin.stage"
+      }
+    }
+  ],
+  "incoming": [],
+  "deliveries": [],
+  "messages_details": {
+    "rate": -0.2
+  },
+  "messages": 2582,
+  "messages_unacknowledged_details": {
+    "rate": 0
+  },
+  "messages_unacknowledged": 50,
+  "messages_ready_details": {
+    "rate": -0.2
+  },
+  "messages_ready": 2532,
+  "reductions_details": {
+    "rate": 2847
+  },
+  "reductions": 2220692857,
+  "message_stats": {
+    "deliver_get_details": {
+      "avg": 159012.4,
+      "avg_rate": 80.22666666666667,
+      "samples": [
+        {
+          "timestamp": 1548931800000,
+          "sample": 183080
+        },
+        {
+          "timestamp": 1548931200000,
+          "sample": 134944
+        }
+      ],
+      "rate": 80.22666666666667
+    },
+    "deliver_get": 183080,
+    "ack_details": {
+      "avg": 147707.5,
+      "avg_rate": 71.865,
+      "samples": [
+        {
+          "timestamp": 1548931800000,
+          "sample": 169267
+        },
+        {
+          "timestamp": 1548931200000,
+          "sample": 126148
+        }
+      ],
+      "rate": 71.865
+    },
+    "ack": 169267,
+    "redeliver_details": {
+      "avg": 10620.5,
+      "avg_rate": 7.821666666666666,
+      "samples": [
+        {
+          "timestamp": 1548931800000,
+          "sample": 12967
+        },
+        {
+          "timestamp": 1548931200000,
+          "sample": 8274
+        }
+      ],
+      "rate": 7.821666666666666
+    },
+    "redeliver": 12967,
+    "deliver_no_ack_details": {
+      "avg": 0.1,
+      "avg_rate": 0.1,
+      "samples": [
+        {
+          "timestamp": 1548931800000,
+          "sample": 0
+        },
+        {
+          "timestamp": 1548931200000,
+          "sample": 0
+        }
+      ],
+      "rate": 0.1
+    },
+    "deliver_no_ack": 0,
+    "deliver_details": {
+      "avg": 159012.1,
+      "avg_rate": 80.22666666666667,
+      "samples": [
+        {
+          "timestamp": 1548931800000,
+          "sample": 183080
+        },
+        {
+          "timestamp": 1548931200000,
+          "sample": 134944
+        }
+      ],
+      "rate": 80.22666666666667
+    },
+    "deliver": 183080,
+    "get_no_ack_details": {
+      "avg": 0.1,
+      "avg_rate": 0.1,
+      "samples": [
+        {
+          "timestamp": 1548931800000,
+          "sample": 0
+        },
+        {
+          "timestamp": 1548931200000,
+          "sample": 0
+        }
+      ],
+      "rate": 0.1
+    },
+    "get_no_ack": 0,
+    "get_details": {
+      "avg": 0.1,
+      "avg_rate": 0.1,
+      "samples": [
+        {
+          "timestamp": 1548931800000,
+          "sample": 0
+        },
+        {
+          "timestamp": 1548931200000,
+          "sample": 0
+        }
+      ],
+      "rate": 0.1
+    },
+    "get": 0,
+    "publish_details": {
+      "avg": 102930.1,
+      "avg_rate": 187.94333333333333,
+      "samples": [
+        {
+          "timestamp": 1548931800000,
+          "sample": 159313
+        },
+        {
+          "timestamp": 1548931200000,
+          "sample": 46547
+        }
+      ],
+      "rate": 187.94333333333333
+    },
+    "publish": 159313
+  },
+  "node": "rabbit@malxodamqstage03",
+  "arguments": {
+    "x-dead-letter-exchange": "oddjob.upload.origin.stage.rejected",
+    "x-max-priority": 10
+  },
+  "exclusive": false,
+  "auto_delete": false,
+  "durable": true,
+  "vhost": "/",
+  "name": "oddjob.upload.origin.stage",
+  "message_bytes_paged_out": 0,
+  "messages_paged_out": 0,
+  "backing_queue_status": {
+    "priority_lengths": {
+      "0": 0,
+      "1": 10,
+      "2": 83,
+      "3": 2439,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "10": 0
+    },
+    "mode": "default",
+    "q1": 194,
+    "q2": 0,
+    "delta": [
+      "delta",
+      "todo",
+      "todo",
+      "todo",
+      "todo"
+    ],
+    "q3": 2294,
+    "q4": 44,
+    "len": 2532,
+    "target_ram_count": 269,
+    "next_seq_id": 172877,
+    "avg_ingress_rate": 0.031068576408467795,
+    "avg_egress_rate": 0.09950709040574493,
+    "avg_ack_ingress_rate": 0.09950709040574493,
+    "avg_ack_egress_rate": 0.08405497111465236,
+    "mirror_seen": 0,
+    "mirror_senders": 7
+  },
+  "head_message_timestamp": null,
+  "message_bytes_persistent": 9192748,
+  "message_bytes_ram": 2665378,
+  "message_bytes_unacknowledged": 73338,
+  "message_bytes_ready": 9119410,
+  "message_bytes": 9192748,
+  "messages_persistent": 2582,
+  "messages_unacknowledged_ram": 50,
+  "messages_ready_ram": 1327,
+  "messages_ram": 1377,
+  "garbage_collection": {
+    "minor_gcs": 0,
+    "fullsweep_after": 65535,
+    "min_heap_size": 233,
+    "min_bin_vheap_size": 46422,
+    "max_heap_size": 0
+  },
+  "state": "running",
+  "recoverable_slaves": [
+    "rabbit@malxodamqstage01",
+    "rabbit@malxodamqstage02"
+  ],
+  "synchronised_slave_nodes": [
+    "rabbit@malxodamqstage02",
+    "rabbit@malxodamqstage01"
+  ],
+  "slave_nodes": [
+    "rabbit@malxodamqstage01",
+    "rabbit@malxodamqstage02"
+  ],
+  "memory": 2551088,
+  "consumer_utilisation": 0.00002701441763134158,
+  "consumers": 1,
+  "exclusive_consumer_tag": null,
+  "policy": "ha-all"
+}

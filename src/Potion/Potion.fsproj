@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <OtherFlags>$(OtherFlags) --test:GraphBasedChecking --test:ParallelOptimization --test:ParallelIlxGen</OtherFlags>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Akka" Version="1.5.48" />
+        <PackageReference Include="Akka.Cluster.Sharding" Version="1.5.48" />
+        <PackageReference Include="Akka.DependencyInjection" Version="1.5.48" />
+        <PackageReference Include="Akkling" Version="0.17.0" />
+        <PackageReference Include="Akkling.Persistence" Version="0.17.0" />
+        <PackageReference Update="FSharp.Core" Version="9.0.300" />
+        <PackageReference Include="FsHttp" Version="15.0.1" />
+    </ItemGroup>
+  <ItemGroup>
+    <Compile Include="PotionTypes.fs" />
+    <Compile Include="PotionDto.fs" />
+    <Compile Include="PotionPersistence.fs" />
+    <Compile Include="PotionUtils.fs" />
+    <Compile Include="PotionWorkerActors.fs" />
+    <Compile Include="PotionBootstrapperUtils.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Core/Core.fsproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,18 @@
+﻿{
+  "QueuesConnections": {
+    "QueueServers": [
+      {
+        "Name": "amqp-dev",
+        "Hosts": {
+          "Amqp": "crisp-lime-hound.in.rmq3.cloudamqp.com",
+          "Http": "https://crisp-lime-hound.in.rmq3.cloudamqp.com"
+        },
+        "VirtualHost": "kqyqaubi",
+        "Port": 5672,
+        "ManagementPort": 443,
+        "Username": "kqyqaubi",
+        "Password": ""
+      }
+    ]
+  }
+}

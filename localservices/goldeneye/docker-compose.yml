@@ -1,0 +1,7 @@
+services:
+  goldeneye:
+    image: nrkpsregistry.azurecr.io/distribution-oddjob-monitor:main_334836
+    ports:
+      - "1955:8080"
+    volumes:
+      - ./appSettings.json:/app/appSettings.json

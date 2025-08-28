@@ -1,0 +1,20 @@
+services:
+  eventstore-azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:3.34.0
+  
+  eventstorefunc:
+    image: plattform.azurecr.io/eventstorefunc:7
+    ports:
+      - "8081:80"
+    environment:
+      - CreateStorageIfNotExist=true
+      - AzureWebJobsStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://eventstore-azurite:10000/devstoreaccount1;QueueEndpoint=http://eventstore-azurite:10001/devstoreaccount1;TableEndpoint=http://eventstore-azurite:10002/devstoreaccount1;
+    depends_on:
+      - eventstore-azurite
+  
+  eventstoreweb:
+    image: plattform.azurecr.io/eventstoreweb:7
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eventstorefunc

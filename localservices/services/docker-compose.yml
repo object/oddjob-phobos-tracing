@@ -1,0 +1,128 @@
+volumes:
+  sqledge-data:
+  azurite-blob:
+  azurite-queue:
+  azurite-table:
+  localstack-data:
+
+services:
+  rabbitmq:
+    image: rabbitmq:4-management
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      start_period: 60s
+      start_interval: 5s
+      retries: 3
+    ports:
+      - "15672:15672" # RabbitMQ management UI
+      - "5673:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_VHOST: dev
+
+  sqledge:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    user: root
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Your_password123"
+    ports:
+      - "1433:1433" # SQL Server default port
+    volumes:
+      - sqledge-data:/var/opt/mssql/data
+    healthcheck:
+      test: '/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$${MSSQL_SA_PASSWORD}" -Q "SELECT 1" -b -o /dev/null'
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_interval: 5s
+      start_period: 5s
+      
+  init-mssql-db:
+    image: mcr.microsoft.com/mssql-tools:latest
+    depends_on:
+      - sqledge
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Your_password123"
+    volumes:
+      - ../../sql/AkkaPersistence.sql:/var/opt/mssql/AkkaPersistence.sql:ro
+      - ../../sql/MediaSetStates.sql:/var/opt/mssql/MediaSetStates.sql:ro
+      - ../../sql/MediaSetStatuses.sql:/var/opt/mssql/MediaSetStatuses.sql:ro
+      - ../../sql/ScheduledMessages.sql:/var/opt/mssql/ScheduledMessages.sql:ro
+      - ../../sql/Quartz.sql:/var/opt/mssql/Quartz.sql:ro
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        echo "Creating Akka persistence tables"
+        /opt/mssql-tools/bin/sqlcmd -S sqledge -U SA -P "Your_password123" -d master -i /var/opt/mssql/AkkaPersistence.sql
+        echo "Creating Oddjob supplementary tables"
+        /opt/mssql-tools/bin/sqlcmd -S sqledge -U SA -P "Your_password123" -d master -i /var/opt/mssql/MediaSetStates.sql
+        /opt/mssql-tools/bin/sqlcmd -S sqledge -U SA -P "Your_password123" -d master -i /var/opt/mssql/MediaSetStatuses.sql
+        /opt/mssql-tools/bin/sqlcmd -S sqledge -U SA -P "Your_password123" -d master -i /var/opt/mssql/ScheduledMessages.sql
+        echo "Creating Quartz tables"
+        /opt/mssql-tools/bin/sqlcmd -S sqledge -U SA -P "Your_password123" -d master -i /var/opt/mssql/Quartz.sql
+        echo "Succesfully created SQL tables"
+      
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:
+      - "10000:10000" # Blob service
+      - "10001:10001" # Queue service
+      - "10002:10002" # Table service
+    volumes:
+      - azurite-blob:/data/blob
+      - azurite-queue:/data/queue
+      - azurite-table:/data/table
+      
+  azurite-init:
+    image: mcr.microsoft.com/azure-cli
+    depends_on:
+      - azurite
+    command: 
+      - "sh"
+      - "-c"
+      - "az storage container create --name subtitles-v1 --account-name devstorageaccount1 --connection-string 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;'"
+
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"   # Edge port for all services
+      - "4572:4572"   # S3 legacy port
+    environment:
+      - SERVICES=s3
+      - PERSISTENCE=1
+    volumes:
+      - localstack-data:/var/lib/localstack # Mount a host directory to the container's data path
+      - ./init-localstack.sh:/etc/localstack/init/ready.d/init-localstack.sh:ro # Initialization script, requires execution permission (chmod +x)
+
+  servicebus-emulator:
+    build:
+     context: ./servicebus-emulator
+     dockerfile: dockerfile
+    volumes:
+      - "./servicebus-config.json:/ServiceBus_Emulator/ConfigFiles/Config.json"
+    ports:
+      - "5672:5672" # Default AMQP port for Service Bus
+      - "5300:5300" # Health check port
+    healthcheck:
+      test: ['CMD', '/Healthcheck/ServiceBusEmulator.Healthcheck']
+      interval: 30s
+      timeout: 30s
+      start_period: 60s
+      start_interval: 5s
+      retries: 3
+    environment:
+      ACCEPT_EULA: "Y"
+      ASPNETCORE_ENVIRONMENT: Development 
+      SQL_SERVER: sqledge  
+      MSSQL_SA_PASSWORD: "Your_password123"
+      SQL_WAIT_INTERVAL: '0'
+    depends_on:
+      sqledge:
+        condition: service_healthy
+

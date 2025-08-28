@@ -1,0 +1,58 @@
+---
+policy:
+  approval:
+  - or:
+      - oddjob-approval
+      - non-oddjob-approval
+      - dependabot-patch
+  disapproval:
+    if: 
+      has_labels: 
+        - "dontmerge ✋"
+    requires:
+      teams:
+        - "nrkno/Oddjob"
+approval_rules:
+  - name: oddjob-approval
+    description: A rule that requires successfull checks and approval from one from team
+    if: 
+      has_status:
+        conclusions: ["success", "skipped"]
+        statuses:
+          - "lint"
+          - "build"
+          - "unit-tests"
+          - "integration-tests"
+    requires:
+      count: 1
+      teams:
+        - "nrkno/Oddjob"
+    options:
+      allow_non_author_contributor: true
+      request_review:
+        enabled: true
+        mode: teams
+      methods:
+        github_review: true
+
+  - name: non-oddjob-approval
+    description: A rule that auto approves certain folder changes
+    if:
+      no_changed_files:
+        paths:
+          - "^src/.*$"
+          - "^tests/.*$"
+          - "^Odd.sln$"
+    requires:
+      count: 0
+  - name: dependabot-patch
+    description: Rule to approve PR when label is patch, author is dependabot and all relevant checks go green
+    if:
+      has_author_in:
+        users: ["dependabot[bot]"]
+      has_labels:
+        - "dependencies"
+        - "patch"
+      has_valid_signatures: true
+    requires:
+      count: 0

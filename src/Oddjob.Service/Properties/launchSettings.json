@@ -1,0 +1,43 @@
+﻿{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "local": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "Oddjob_AppSettings__FeatureFlagSource": "ConfigCat",
+        "Oddjob_Vault__Enabled": "true",
+        "Oddjob_Vault__ServerUri": "https://vault.nrk.cloud:8200",
+        "Oddjob_Vault__Authentication__Type": "VaultCli"
+      }
+    },
+    "docker": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "Oddjob_AppSettings__FeatureFlagSource": "AppSettings",
+        "Oddjob_ConnectionStrings__AkkaManagementTableStorage": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://localhost:10002/devstoreaccount1;",
+        "Oddjob_ConnectionStrings__Akka": "Server=localhost,1433;Database=master;User ID=sa;Password=Your_password123;TrustServerCertificate=true;Max Pool Size=500",
+        "Oddjob_ConnectionStrings__EventStore": "AuthorizationKey=;PublishUrl=http://localhost:80/api/queue/v1;QueryUrl=http://localhost:80/api/queryById/v1",
+        "Oddjob_ConnectionStrings__AmazonS3": "AccessKey=;SecretAccessKey=;Endpoint=http://localhost:4566",
+        "Oddjob_ConnectionStrings__OtelCollector": "Uri=http://localhost:4317;Username=;Password=",
+        "Oddjob_ConnectionStrings__PsServiceBus": "Endpoint=amqp://localhost:5672/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;",
+        "Oddjob_ConnectionStrings__RadioServiceBus": "Endpoint=amqp://localhost:5672/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;",
+        "Oddjob_ConnectionStrings__SideloadingAzureStorage": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1;",
+        "Oddjob_FeatureFlags__requiredContactPointNumber": "1",
+        "Oddjob_FeatureFlags__enableDefaultPotionGeoBlock": "true",
+        "Oddjob_FeatureFlags__disableGranittUpdate": "true",
+        "Oddjob_FeatureFlags__otelInstrumentation": "Aws,Process,Quartz,RabbitMQ,Runtime,ServiceBus",
+        "Oddjob_Vault__Enabled": "false",
+        "Oddjob_OddjobSettings__HealthCheck__Components__0__enabled": "false",
+        "Oddjob_OddjobSettings__HealthCheck__Components__4__enabled": "false",
+        "Oddjob_QueuesConnections__QueueServers__0__Hosts__Amqp": "localhost",
+        "Oddjob_QueuesConnections__QueueServers__0__Hosts__Http": "http://localhost",
+        "Oddjob_QueuesConnections__QueueServers__0__ManagementPort": "15672",
+        "Oddjob_QueuesConnections__QueueServers__0__Name": "amqp-dev",
+        "Oddjob_QueuesConnections__QueueServers__0__Password": "guest",
+        "Oddjob_QueuesConnections__QueueServers__0__Port": "5673",
+        "Oddjob_QueuesConnections__QueueServers__0__Username": "guest",
+        "Oddjob_QueuesConnections__QueueServers__0__virtualHost": "dev"
+      }
+    }
+  }
+}

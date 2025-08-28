@@ -1,0 +1,504 @@
+﻿{
+  "QueuesSettings": {
+    "Exchanges": [
+      {
+        "Name": "oddjob.events.stage",
+        "Server": "amqp-dev",
+        "Type": "Topic",
+        "BindTo": [],
+        "Siblings": []
+      },
+      {
+        "Name": "dm.ps.changes.stage",
+        "Server": "amqp-dev",
+        "Type": "Fanout",
+        "BindTo": [],
+        "Siblings": [
+          "dm.ps.changes.stage.retries",
+          "dm.ps.changes.stage.errors",
+          "dm.ps.changes.stage.rejected"
+        ]
+      },
+      {
+        "Name": "dm.ps.subtitles.stage",
+        "Server": "amqp-dev",
+        "Type": "Fanout",
+        "BindTo": [],
+        "Siblings": [
+          "dm.ps.subtitles.stage.retries",
+          "dm.ps.subtitles.stage.errors",
+          "dm.ps.subtitles.stage.rejected"
+        ]
+      },
+      {
+        "Name": "dm.ps.transcoding.stage",
+        "Server": "amqp-dev",
+        "Type": "Fanout",
+        "BindTo": [],
+        "Siblings": [
+          "dm.ps.transcoding.stage.retries",
+          "dm.ps.transcoding.stage.errors",
+          "dm.ps.transcoding.stage.rejected"
+        ]
+      },
+      {
+        "Name": "dm.ps.tv.subtitles.stage",
+        "Server": "amqp-dev",
+        "Type": "Fanout",
+        "BindTo": [],
+        "Siblings": [
+          "dm.ps.tv.subtitles.stage.retries",
+          "dm.ps.tv.subtitles.stage.errors",
+          "dm.ps.tv.subtitles.stage.rejected"
+        ]
+      },
+      {
+        "Name": "dm.ps.usagerights.stage",
+        "Server": "amqp-dev",
+        "Type": "Fanout",
+        "BindTo": [
+          {
+            "exchangeName": "dm.ps.usagerights.ps.stage",
+            "routingKey": ""
+          }
+        ],
+        "Siblings": []
+      },
+      {
+        "Name": "dm.ps.usagerights.ps.stage",
+        "Server": "amqp-dev",
+        "Type": "Fanout",
+        "BindTo": [],
+        "Siblings": [
+          "dm.ps.usagerights.ps.stage.retries",
+          "dm.ps.usagerights.ps.stage.errors",
+          "dm.ps.usagerights.ps.stage.rejected"
+        ]
+      },
+      {
+        "Name": "dm.ps.prf.programstatus.stage",
+        "Server": "amqp-dev",
+        "Type": "Fanout",
+        "BindTo": [],
+        "Siblings": [
+          "dm.ps.prf.programstatus.stage.retries",
+          "dm.ps.prf.programstatus.stage.errors",
+          "dm.ps.prf.programstatus.stage.rejected"
+        ]
+      },
+      {
+        "Name": "dm.potion.commands.stage",
+        "Server": "amqp-dev",
+        "Type": "Fanout",
+        "BindTo": [],
+        "Siblings": [
+          "dm.potion.commands.stage.retries",
+          "dm.potion.commands.stage.errors",
+          "dm.potion.commands.stage.rejected"
+        ]
+      }
+    ],
+    "Queues": [
+      {
+        "Category": "PsProgramsWatch",
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.changes.stage",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.changes.stage",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "dm.ps.changes.stage.rejected",
+          "TTL": 0,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": null,
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.changes.stage.retries",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.changes.stage.retries",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "dm.ps.changes.stage",
+          "TTL": 300000,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": null,
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.changes.stage.errors",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.changes.stage.errors",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "dm.ps.changes.stage",
+          "TTL": 3600000,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": null,
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.changes.stage.rejected",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.changes.stage.rejected",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "",
+          "TTL": 0,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": "PsTranscodingWatch",
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.transcoding.stage",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.transcoding.stage",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "dm.ps.transcoding.stage.rejected",
+          "TTL": 0,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": null,
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.transcoding.stage.retries",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.transcoding.stage.retries",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "dm.ps.transcoding.stage",
+          "TTL": 300000,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": null,
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.transcoding.stage.errors",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.transcoding.stage.errors",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "dm.ps.transcoding.stage",
+          "TTL": 3600000,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": null,
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.transcoding.stage.rejected",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.transcoding.stage.rejected",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "",
+          "TTL": 0,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": "PsSubtitlesWatch",
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.tv.subtitles.stage",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.tv.subtitles.stage",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "dm.ps.tv.subtitles.stage.rejected",
+          "TTL": 0,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": null,
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.tv.subtitles.stage.retries",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.tv.subtitles.stage.retries",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "dm.ps.tv.subtitles.stage",
+          "TTL": 300000,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": null,
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.tv.subtitles.stage.errors",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.tv.subtitles.stage.errors",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "dm.ps.tv.subtitles.stage",
+          "TTL": 3600000,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": null,
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.tv.subtitles.stage.rejected",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.tv.subtitles.stage.rejected",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "",
+          "TTL": 0,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": "PsUsageRightsPsWatch",
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.usagerights.ps.stage",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.usagerights.ps.stage",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "dm.ps.usagerights.ps.stage.rejected",
+          "TTL": 0,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": null,
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.usagerights.ps.stage.retries",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.usagerights.ps.stage.retries",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "dm.ps.usagerights.ps.stage",
+          "TTL": 300000,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": null,
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.usagerights.ps.stage.errors",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.usagerights.ps.stage.errors",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "dm.ps.usagerights.ps.stage",
+          "TTL": 3600000,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": null,
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.usagerights.ps.stage.rejected",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.usagerights.ps.stage.rejected",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "",
+          "TTL": 0,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": "PsProgramStatusWatch",
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.prf.programstatus.stage",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.prf.programstatus.stage",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "dm.ps.prf.programstatus.stage.rejected",
+          "TTL": 0,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": null,
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.prf.programstatus.stage.retries",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.prf.programstatus.stage.retries",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "dm.ps.prf.programstatus.stage",
+          "TTL": 300000,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": null,
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.prf.programstatus.stage.errors",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.prf.programstatus.stage.errors",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "dm.ps.prf.programstatus.stage",
+          "TTL": 3600000,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": null,
+        "Server": "amqp-dev",
+        "QueueName": "dm.ps.prf.programstatus.stage.rejected",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.ps.prf.programstatus.stage.rejected",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "",
+          "TTL": 0,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": "PotionWatch",
+        "Server": "amqp-dev",
+        "QueueName": "dm.potion.commands.stage",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.potion.commands.stage",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "dm.potion.commands.stage.rejected",
+          "TTL": 0,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": "PotionWatchRetries",
+        "Server": "amqp-dev",
+        "QueueName": "dm.potion.commands.stage.retries",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.potion.commands.stage.retries",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "dm.potion.commands.stage",
+          "TTL": 300000,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": "PotionWatchErrors",
+        "Server": "amqp-dev",
+        "QueueName": "dm.potion.commands.stage.errors",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.potion.commands.stage.errors",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "dm.potion.commands.stage",
+          "TTL": 3600000,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": "PotionWatchRejected",
+        "Server": "amqp-dev",
+        "QueueName": "dm.potion.commands.stage.rejected",
+        "BindFrom": [
+          {
+            "exchangeName": "dm.potion.commands.stage.rejected",
+            "routingKey": ""
+          }
+        ],
+        "Features": {
+          "DLX": "",
+          "TTL": 0,
+          "MaxPriority": 5
+        }
+      },
+      {
+        "Category": "OddjobEvents",
+        "Server": "amqp-dev",
+        "QueueName": "dm.out.oddjob.events.stage",
+        "BindFrom": [
+          {
+            "exchangeName": "oddjob.events.stage",
+            "routingKey": "potion.responses.#.v3"
+          }
+        ],
+        "Features": {
+          "DLX": "",
+          "TTL": 0,
+          "MaxPriority": 0
+        }
+      }
+    ]
+  }
+}

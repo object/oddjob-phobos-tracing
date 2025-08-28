@@ -1,0 +1,6 @@
+FROM alpine:latest AS download
+RUN apk add --no-cache curl jq && \
+    curl -sSfL "https://raw.githubusercontent.com/jeremy-morren/azure-service-bus-emulator-healthcheck/refs/heads/main/Download.sh" \
+    | /bin/sh -s - /Healthcheck
+FROM mcr.microsoft.com/azure-messaging/servicebus-emulator:latest AS final
+COPY --from=download --chmod=500 /Healthcheck /Healthcheck

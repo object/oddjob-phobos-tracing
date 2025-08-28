@@ -1,0 +1,53 @@
+version: 2
+registries:
+  api.nuget.org:
+    type: nuget-feed
+    url: https://api.nuget.org/v3/index.json
+  nrk-nuget:
+    type: nuget-feed
+    url: https://nuget.pkg.github.com/nrkno/index.json
+    token: ${{ secrets.PLATTFORM_GITHUB_PACKAGES_READ_TOKEN }}
+  phobos-feed:
+    type: nuget-feed
+    url: https://feed.sdkbin.com/nrk-phobos/v3/index.json
+    username: ${{ secrets.PHOBOS_NUGET_USERNAME }}
+    password: ${{ secrets.PHOBOS_NUGET_PASSWORD }}
+updates:
+  - package-ecosystem: nuget
+    directories:  
+      - "**/*"
+    schedule:
+      interval: daily
+      time: "06:00"
+      timezone: "Europe/Oslo"
+    registries:
+      - api.nuget.org
+      - nrk-nuget
+      - phobos-feed
+    open-pull-requests-limit: 5
+    groups:
+      akka:
+        applies-to: version-updates
+        patterns:
+          - "Akka*"
+          - "Phobos*"
+          - "Petabridge*"
+      akkling:
+        applies-to: version-updates
+        patterns:
+          - "Akkling*"
+      otel: 
+        applies-to: version-updates
+        patterns:
+          - "OpenTelemetry*"
+      patches:
+        applies-to: version-updates
+        update-types:
+          - "patch"
+      dependencies:
+        patterns:
+          - "*"
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule: 
+      interval: "daily"

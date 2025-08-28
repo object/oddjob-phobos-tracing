@@ -1,0 +1,12 @@
+---
+version: 1
+merge:
+  allow_merge_with_no_checks: false
+  delete_after_merge: true
+  method: squash
+  options:
+    squash:
+      body: summarize_commits
+      title: pull_request_title
+  required_statuses:
+    - 'policy-bot: master'

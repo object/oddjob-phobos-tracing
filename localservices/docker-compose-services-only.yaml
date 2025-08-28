@@ -1,0 +1,5 @@
+include:
+  - ./eventstore/docker-compose.yaml
+  - ./goldeneye/docker-compose.yml
+  - ./telemetry/docker-compose.yml
+  - ./services/docker-compose.yml

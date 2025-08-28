@@ -1,0 +1,75 @@
+include:
+  - ./eventstore/docker-compose.yaml
+  - ./goldeneye/docker-compose.yml
+  - ./telemetry/docker-compose.yml
+  - ./services/docker-compose.yml
+
+services:
+  oddjob:
+    build:
+      context: ..
+      secrets:
+        - NRK_GITHUB_TOKEN
+        - PHOBOS_NUGET_USERNAME
+        - PHOBOS_NUGET_PASSWORD
+    ports:
+      - 9110:9110
+      - 1953:1953
+      - 1954:1954
+    depends_on: 
+      servicebus-emulator:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      azurite-init:
+        condition: service_completed_successfully
+    environment:
+      Oddjob_AppSettings__FeatureFlagSource: "AppSettings"
+      Oddjob_ConnectionStrings__AkkaManagementTableStorage: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://azurite:10002/devstoreaccount1;"
+      Oddjob_ConnectionStrings__Akka: "Server=sqledge,1433;Database=master;User ID=sa;Password=Your_password123;TrustServerCertificate=true;Max Pool Size=500"
+      Oddjob_ConnectionStrings__EventStore: "AuthorizationKey=;PublishUrl=http://eventstorefunc:80/api/queue/v1;QueryUrl=http://eventstorefunc:80/api/queryById/v1"
+      Oddjob_ConnectionStrings__AmazonS3: "AccessKey=;SecretAccessKey=;Endpoint=http://localstack:4566"
+      Oddjob_ConnectionStrings__OtelCollector: "Uri=http://otel-collector:4317;Username=;Password="
+      Oddjob_ConnectionStrings__PsServiceBus: "Endpoint=amqp://servicebus-emulator:5672/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;"
+      Oddjob_ConnectionStrings__RadioServiceBus: "Endpoint=amqp://servicebus-emulator:5672/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;"
+      Oddjob_ConnectionStrings__SideloadingAzureStorage: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;"
+      Oddjob_FeatureFlags__requiredContactPointNumber: 1
+      Oddjob_FeatureFlags__enableDefaultPotionGeoBlock: true
+      Oddjob_FeatureFlags__disableGranittUpdate: true
+      Oddjob_FeatureFlags__otelInstrumentation: "Aws,Process,Quartz,RabbitMQ,Runtime,ServiceBus"
+      Oddjob_Vault__Enabled: false
+      Oddjob_OddjobSettings__HealthCheck__Components__0__enabled: false
+      Oddjob_OddjobSettings__HealthCheck__Components__4__enabled: false
+      Oddjob_QueuesConnections__QueueServers__0__Hosts__Amqp: "rabbitmq"
+      Oddjob_QueuesConnections__QueueServers__0__Hosts__Http: "http://rabbitmq"
+      Oddjob_QueuesConnections__QueueServers__0__ManagementPort: 15672
+      Oddjob_QueuesConnections__QueueServers__0__Name: "amqp-dev"
+      Oddjob_QueuesConnections__QueueServers__0__Password: "guest"
+      Oddjob_QueuesConnections__QueueServers__0__Port: 5672
+      Oddjob_QueuesConnections__QueueServers__0__Username: "guest"
+      Oddjob_QueuesConnections__QueueServers__0__virtualHost: "dev"
+    volumes:
+      - odadistribusjon:/mnt/nrk/produksjonsdata/odadistribusjon
+      - potion:/mnt/felles/produksjon/potion
+
+volumes:
+  odadistribusjon:
+    driver: local
+    driver_opts:
+      type: cifs
+      o: domain=felles,username=${FILE_SHARE_USERNAME},password=${FILE_SHARE_PASSWORD},vers=3.0
+      device: //manas01.felles.ds.nrk.no/odadistribusjon$/
+  potion:
+    driver: local
+    driver_opts:
+      type: cifs
+      o: domain=felles,username=${FILE_SHARE_USERNAME},password=${FILE_SHARE_PASSWORD},vers=3.0
+      device: //manas01.felles.ds.nrk.no/Media_share/potion/
+        
+secrets:
+  NRK_GITHUB_TOKEN:
+    environment: NRK_GITHUB_TOKEN
+  PHOBOS_NUGET_USERNAME:
+    environment: PHOBOS_NUGET_USERNAME
+  PHOBOS_NUGET_PASSWORD:
+    environment: PHOBOS_NUGET_PASSWORD
