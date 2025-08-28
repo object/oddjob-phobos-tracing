@@ -1566,7 +1566,7 @@ module MediaSet =
                 GlobalConnectSmil = GlobalConnectSmilState.FromDomain state.GlobalConnect.Smil
                 GlobalConnectVersion = state.GlobalConnect.Version
             }
-        member this.ToDomain() =
+        member this.ToDomain() : MediaSetTypes.CurrentMediaSetState =
             {
                 GlobalConnect =
                     let smil =
@@ -1703,47 +1703,23 @@ module MediaSet =
             | GlobalConnectCommand.CleanupStorage inactiveFiles ->
                 GlobalConnectCommands.GlobalConnectCommand.CleanupStorage(CleanupStorageCommand(inactiveFiles))
 
-    type ContentCommand =
-        | RepairMediaType
-        | RepairSourceFiles
-        | RepairGlobalConnectFile of FileRef
-
-    module ContentCommand =
-        let fromDomain (cmd: ContentCommands.ContentCommand) =
-            match cmd with
-            | ContentCommands.ContentCommand.RepairMediaType -> ContentCommand.RepairMediaType
-            | ContentCommands.ContentCommand.RepairSourceFiles -> ContentCommand.RepairSourceFiles
-            | ContentCommands.ContentCommand.RepairGlobalConnectFile(RepairGlobalConnectFileCommand fileRef) ->
-                ContentCommand.RepairGlobalConnectFile(FileRef.fromDomain fileRef)
-
-        let toDomain (cmd: ContentCommand) : ContentCommands.ContentCommand =
-            match cmd with
-            | ContentCommand.RepairMediaType -> ContentCommands.ContentCommand.RepairMediaType
-            | ContentCommand.RepairSourceFiles -> ContentCommands.ContentCommand.RepairSourceFiles
-            | ContentCommand.RepairGlobalConnectFile fileRef ->
-                ContentCommands.ContentCommand.RepairGlobalConnectFile(RepairGlobalConnectFileCommand(FileRef.toDomain fileRef))
-
     type RemainingActions =
         {
             GlobalConnect: GlobalConnectCommand list
-            Content: ContentCommand list
         }
 
         static member Zero =
             {
                 GlobalConnect = List.empty
-                Content = List.empty
             }
 
     module RemainingActions =
         let fromDomain (actions: MediaSetState.RemainingActions) =
             {
                 GlobalConnect = actions.GlobalConnect |> List.map GlobalConnectCommand.fromDomain
-                Content = actions.Content |> List.map ContentCommand.fromDomain
             }
 
         let toDomain (actions: RemainingActions) : MediaSetState.RemainingActions =
             {
                 GlobalConnect = actions.GlobalConnect |> List.map GlobalConnectCommand.toDomain
-                Content = actions.Content |> List.map ContentCommand.toDomain
             }

@@ -13,13 +13,11 @@ type RoleSettings =
 [<RequireQualifiedAccess>]
 type ClusterRole =
     | GlobalConnect
-    | Ps
     | Potion
     | Upload
-    | WebApi
     | ScheduledTrigger
 
-    static member All = [ GlobalConnect; Ps; Potion; Upload; WebApi; ScheduledTrigger ]
+    static member All = [ GlobalConnect; Potion; Upload; ScheduledTrigger ]
 
 type RuntimeSettings =
     {

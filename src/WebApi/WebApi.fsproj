@@ -59,7 +59,6 @@
   <ItemGroup>
     <ProjectReference Include="../Core/Core.fsproj" />
     <ProjectReference Include="../Upload/Upload.fsproj" />
-    <ProjectReference Include="../Ps/Ps.fsproj" />
     <ProjectReference Include="../Potion/Potion.fsproj" />
     <ProjectReference Include="..\Ingesters.GlobalConnect\Ingesters.GlobalConnect.fsproj" />
     <ProjectReference Include="..\Upload.GlobalConnect\Upload.GlobalConnect.fsproj" />

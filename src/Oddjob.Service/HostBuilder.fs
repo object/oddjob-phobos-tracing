@@ -34,14 +34,11 @@ module HostBuilder =
     open Nrk.Oddjob.Core.Config
     open Nrk.Oddjob.Core.Queues
     open Nrk.Oddjob.Core.SchedulerActors
-    open Nrk.Oddjob.WebApi
 
     open ActorsMetadata
     open GlobalConnectHosting
     open PotionHosting
-    open PsHosting
     open UploadHosting
-    open WebApiHosting
 
     [<Literal>]
     let ApplicationName = "Oddjob.Service"
@@ -132,14 +129,6 @@ module HostBuilder =
 
         if (runtimeSettings.ClusterRoles |> List.contains ClusterRole.Upload) then
             configureS3Services configRoot runtimeSettings services
-
-        if (runtimeSettings.ClusterRoles |> List.contains ClusterRole.WebApi) then
-            services.AddHostedService<ReminderGroups.ReminderMetrics>() |> ignore
-
-        if (runtimeSettings.ClusterRoles |> List.contains ClusterRole.Ps) then
-            services.AddAzureClients(fun builder ->
-                configureServiceBusClient builder runtimeSettings.OddjobConfig.Ps.UsageRightsListener.ServiceBusName
-                configureServiceBusClient builder runtimeSettings.OddjobConfig.Ps.RadioTranscodingListener.ServiceBusName)
 
     let parseInstrumentationConfigFeatures (runtimeSettings: RuntimeSettings) =
         match getFeatureFlag runtimeSettings.FeatureFlags ConfigKey.OtelInstrumentation "None" with
@@ -302,19 +291,12 @@ module HostBuilder =
                     QuartzSettings = quartzSettings
                     FeatureFlags = featureFlags
                 }
-            //let rmqApi = serviceResolver typedefof<IRabbitMqApi> :?> IRabbitMqApi
             let rolesConfigurator: Map<ClusterRole, AkkaConfigurationBuilder -> AkkaConfigurationBuilder> =
                 Map.ofSeq
                     [
                         (ClusterRole.GlobalConnect, _.WithGlobalConnect(configRoot, settings))
-                        (ClusterRole.Ps, _.WithUploadProxy(configRoot, settings).WithPs(configRoot, settings))
                         (ClusterRole.Potion, _.WithUploadProxy(configRoot, settings).WithPotion(configRoot, settings))
-                        (ClusterRole.Upload, _.WithPsProxy(configRoot, settings).WithUpload(configRoot, settings))
-                        (ClusterRole.WebApi,
-                         _.WithUploadProxy(configRoot, settings)
-                             .WithPotionProxy(configRoot, settings)
-                             .WithPsProxy(configRoot, settings)
-                             .WithWebApi(configRoot, settings))
+                        (ClusterRole.Upload, _.WithUpload(configRoot, settings))
                         (ClusterRole.ScheduledTrigger,
                          fun b ->
                              b.WithSingleton<SchedulerTriggerMarker>(

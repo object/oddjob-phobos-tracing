@@ -30,23 +30,9 @@ module ActionContext =
             Logger: ILoggingAdapter
         }
 
-    type ContentEnvironment =
-        {
-            GetGranittMediaType: MediaSetId -> MediaType
-            GlobalConnectFileSystemResolver: unit -> IFileSystemInfo
-        }
-
-    type ContentActionContext =
-        {
-            Validation: ValidationSettings
-            Environment: ContentEnvironment
-            Logger: ILoggingAdapter
-        }
-
     type ActionEnvironment =
         {
             GlobalConnect: GlobalConnectEnvironment
-            Content: ContentEnvironment
         }
 
     module GlobalConnectActionContext =
@@ -54,13 +40,5 @@ module ActionContext =
             {
                 GlobalConnectActionContext.Validation = validationSettings
                 Environment = globalConnectEnvironment
-                Logger = logger
-            }
-
-    module ContentActionContext =
-        let create logger validationSettings contentEnvironment =
-            {
-                ContentActionContext.Validation = validationSettings
-                Environment = contentEnvironment
                 Logger = logger
             }

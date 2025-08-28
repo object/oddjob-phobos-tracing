@@ -77,28 +77,6 @@ module PotionWorkerActors =
             | [] -> ()
             | _ -> invalidArg "PotionCommand" "Missing mandatory fields"
 
-    let private scheduleCleanup mailbox aprops (mediaSetId: MediaSetId) (cmd: PotionCommand) forwardedFrom =
-        match cmd with
-        | AddFile _ ->
-            let requestSource = cmd.GetSource()
-            match MediaSetRetention.tryGetRetentionPeriod requestSource forwardedFrom aprops.RetentionPeriods with
-            | Some period ->
-                let job = MediaSetRetention.createRetentionJob period
-                let interval = aprops.ClearMediaSetReminderInterval
-                let message = MediaSetShardMessage.ClearMediaSetReminder mediaSetId.Value
-                Reminders.scheduleRepeatingReminderTask
-                    aprops.UploadScheduler
-                    Reminders.ClearMediaSet
-                    mediaSetId.Value
-                    message
-                    aprops.MediaSetController.Path
-                    job.TriggerTime
-                    interval
-                    (logDebug mailbox)
-                true
-            | None -> false
-        | _ -> false
-
     let potionHandlerActor (aprops: PotionHandlerProps) (mailbox: Eventsourced<_>) =
 
         let scheduleCompletionReminder shortGroupId traceContext =
@@ -453,7 +431,6 @@ module PotionWorkerActors =
                 geoBlockCommand |> Option.map (fun geoBlockCommand -> createJob state geoBlockCommand.Command priority forwardedFrom)
             let mainJob = createJob state mainCommand.Command priority forwardedFrom
             logDebug mailbox $"Created job %A{mainJob} for command %A{mainCommand}"
-            let hasScheduledCleanup = scheduleCleanup mailbox aprops mainJob.MediaSetId mainCommand.Command forwardedFrom
             let jobs =
                 match geoBlockJob with
                 | Some geoBlockJob -> [ geoBlockJob; mainJob ]
@@ -464,7 +441,6 @@ module PotionWorkerActors =
                     createTraceSpanForContext mailbox traceContext "potionHandlerActor.dispatchJob" [ ("oddjob.mediaset.command", mainJob.CommandName) ]
                 let msg = Message.create (MediaSetShardMessage.MediaSetJob job)
                 aprops.MediaSetController <! msg)
-            hasScheduledCleanup
 
         let createQueueMessage routingKey priority event =
             event
@@ -720,7 +696,7 @@ module PotionWorkerActors =
             match state.Group with
             | Some group when aprops.CompletionReminderInterval > TimeSpan.MinValue ->
                 scheduleCompletionReminder (getShortGroupId group.GroupId) traceContext
-                awaiting_reminders_acks state ack (if isCleanupScheduled then 2 else 1) traceContext
+                awaiting_reminders_acks state ack traceContext
             | _ ->
                 sendAck mailbox ack "Command is handled"
                 idle state
@@ -732,12 +708,10 @@ module PotionWorkerActors =
                     CommandId = cmd.CommandId
                 }
             let traceContext = getTraceContext mailbox
-            if createAndDispatchJob state [ dispatchingCommand ] cmd.ForwardedFrom traceContext then
-                awaiting_reminders_acks state None 1 traceContext
-            else
-                idle state
-        and awaiting_reminders_acks state ack reminderCount traceContext =
-            logDebug mailbox $"awaiting_reminders_acks ({reminderCount} remains)"
+            createAndDispatchJob state [ dispatchingCommand ] cmd.ForwardedFrom traceContext
+            idle state
+        and awaiting_reminders_acks state ack traceContext =
+            logDebug mailbox $"awaiting_reminders_acks"
             let traceSpan = createTraceSpanForContext mailbox traceContext "potionHandlerActor.awaitingCompletionReminder" []
             mailbox.SetReceiveTimeout aprops.ReminderAckTimeout
             actor {
@@ -746,14 +720,10 @@ module PotionWorkerActors =
                     match message with
                     | :? Reminders.ReminderCreated ->
                         logDebug mailbox $"Received reminder ack ({message})"
-                        let reminderCount = reminderCount - 1
-                        if reminderCount = 0 then
-                            mailbox.SetReceiveTimeout None
-                            traceSpan.Dispose()
-                            sendAck mailbox ack "Command is handled"
-                            idle state
-                        else
-                            awaiting_reminders_acks state ack reminderCount traceContext
+                        mailbox.SetReceiveTimeout None
+                        traceSpan.Dispose()
+                        sendAck mailbox ack "Command is handled"
+                        idle state
                     | Reminders.LifetimeEvent e ->
                         logDebug mailbox $"Reminder lifetime event {e}"
                         ignored ()

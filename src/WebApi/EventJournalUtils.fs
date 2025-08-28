@@ -9,8 +9,6 @@ module EventJournalUtils =
 
     open Nrk.Oddjob
     open Nrk.Oddjob.Core
-    open Nrk.Oddjob.Ps.PsTypes
-    open Nrk.Oddjob.Ps.PsShardMessages
     open Nrk.Oddjob.Potion.PotionTypes
     open Nrk.Oddjob.Upload.UploadTypes
 
@@ -78,8 +76,6 @@ module EventJournalUtils =
 
     type IStateReader =
         abstract member MediaSetState: entityId: string -> Async<MediaSetState>
-        abstract member PsFilesState: entityId: string -> Async<PsFilesState>
-        abstract member PsPlayabilityState: entityId: string -> Async<PsPlayabilityHandlerState>
         abstract member PotionSetState: entityId: string -> Async<PotionSetState>
 
     module Queries =
@@ -94,9 +90,6 @@ module EventJournalUtils =
                     evt.Event.GetType().Name, null
                 // Potion
                 else if Potion.PotionPersistence.ProtobufSerializer.SupportedTypes |> List.contains (evt.Event.GetType()) then
-                    evt.Event.GetType().Name, evt |> box
-                // PS
-                else if Ps.PsPersistence.ProtobufSerializer.SupportedTypes |> List.contains (evt.Event.GetType()) then
                     evt.Event.GetType().Name, evt |> box
                 else
                     String.Empty, evt
@@ -143,30 +136,6 @@ module EventJournalUtils =
                     }
                 | _ -> Async.fromResult MediaSetState.Zero
 
-        type PsFilesReader(system, oddjobConfig) =
-            let psMediator = PsShardExtractor(oddjobConfig.Ps.NumberOfShards) |> ClusterShards.getPsMediator system
-
-            member _.GetPersistentState entityId =
-                match MediaSetId.tryParse entityId with
-                | Some mediaSetId ->
-                    async {
-                        let! (state: Ps.PsPersistence.FilesState) = psMediator <? PsShardMessage.GetFilesState mediaSetId
-                        return state.ToDomain()
-                    }
-                | _ -> Async.fromResult PsFilesState.Zero
-
-        type PsPlayabilityReader(system, oddjobConfig) =
-            let psMediator = PsShardExtractor(oddjobConfig.Ps.NumberOfShards) |> ClusterShards.getPsMediator system
-
-            member _.GetPersistentState entityId =
-                match MediaSetId.tryParse entityId with
-                | Some mediaSetId ->
-                    async {
-                        let! (state: Ps.PsPersistence.PlayabilityHandlerState) = psMediator <? PsShardMessage.GetPlayabilityHandlerState mediaSetId
-                        return state.ToDomain()
-                    }
-                | _ -> Async.fromResult PsPlayabilityHandlerState.Zero
-
         type PotionSetReader(system, oddjobConfig) =
             let potionMediator = PotionShardExtractor(oddjobConfig.Potion.NumberOfShards) |> ClusterShards.getPotionMediator system
 
@@ -181,19 +150,11 @@ module EventJournalUtils =
         let createStateReader (system: Akka.Actor.ActorSystem) (oddjobConfig: OddjobConfig) =
 
             let uploadReader = UploadReader(system, oddjobConfig)
-            let psFilesReader = PsFilesReader(system, oddjobConfig)
-            let psPlayabilityReader = PsPlayabilityReader(system, oddjobConfig)
             let potionSetReader = PotionSetReader(system, oddjobConfig)
 
             { new IStateReader with
                 member _.MediaSetState entityId =
                     uploadReader.GetPersistentState entityId
-
-                member _.PsFilesState entityId =
-                    psFilesReader.GetPersistentState entityId
-
-                member _.PsPlayabilityState entityId =
-                    psPlayabilityReader.GetPersistentState entityId
 
                 member _.PotionSetState entityId =
                     potionSetReader.GetPersistentState entityId
@@ -208,26 +169,6 @@ module EventJournalUtils =
                 PersistenceId = NormalizedPersistenceId.value persistenceId
                 State = Dto.MediaSet.MediaSetState.FromDomain state
                 RepairActions = Some(getRepairActions state (MediaSetId.parse entityId))
-            })
-
-    let getPsFilesJournalState (reader: IStateReader) entityId =
-        let persistenceId = NormalizedPersistenceId.create entityId
-        let state = reader.PsFilesState entityId
-        state
-        |> Async.map (fun state ->
-            {
-                PersistenceId = NormalizedPersistenceId.value persistenceId
-                State = Ps.PsPersistence.FilesState.FromDomain state
-            })
-
-    let getPsPlayabilityJournalState (reader: IStateReader) entityId =
-        let persistenceId = NormalizedPersistenceId.create entityId
-        let state = reader.PsPlayabilityState entityId
-        state
-        |> Async.map (fun state ->
-            {
-                PersistenceId = NormalizedPersistenceId.value persistenceId
-                State = Ps.PsPersistence.PlayabilityHandlerState.FromDomain state
             })
 
     let getPotionSetJournalState (reader: IStateReader) entityId =

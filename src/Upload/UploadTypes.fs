@@ -55,13 +55,6 @@ module UploadTypes =
         }
 
     [<NoEquality; NoComparison>]
-    type PsClientRef =
-        {
-            PsMediator: IActorRef<obj>
-            GetGranittAccess: IActorContext -> IActorRef<Granitt.GranittCommand>
-        }
-
-    [<NoEquality; NoComparison>]
     type PotionClientRef =
         {
             PotionMediator: IActorRef<obj>
@@ -72,12 +65,10 @@ module UploadTypes =
 
     [<RequireQualifiedAccess>]
     type ClientRef =
-        | Ps of PsClientRef
         | Potion of PotionClientRef
 
         member this.ClientPublisher =
             match this with
-            | Ps p -> retype p.PsMediator
             | Potion p -> retype p.PotionMediator
 
     type UploadShardExtractor(numOfShards) =

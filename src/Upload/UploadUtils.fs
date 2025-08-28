@@ -105,5 +105,4 @@ module UploadUtils =
         clientContentId
         |> Option.bind (fun clientContentId ->
             match clientRef with
-            | ClientRef.Ps _ -> None
             | ClientRef.Potion p -> p.ExternalGroupIdResolver clientContentId |> Some)

@@ -98,9 +98,7 @@
         <Compile Include="ShardCommand.fs" />
         <Compile Include="GlobalConnectHosting.fs" />
         <Compile Include="PotionHosting.fs" />
-        <Compile Include="PsHosting.fs" />
         <Compile Include="UploadHosting.fs" />
-        <Compile Include="WebApiHosting.fs" />
         <Compile Include="HostBuilder.fs" />
         <Compile Include="Program.fs" />
         <Content Include="PostDeploy.ps1" />
@@ -110,10 +108,8 @@
       <ProjectReference Include="..\Core\Core.fsproj" />
       <ProjectReference Include="..\Ingesters.GlobalConnect\Ingesters.GlobalConnect.fsproj" />
       <ProjectReference Include="..\Potion\Potion.fsproj" />
-      <ProjectReference Include="..\Ps\Ps.fsproj" />
       <ProjectReference Include="..\Upload.GlobalConnect\Upload.GlobalConnect.fsproj" />
       <ProjectReference Include="..\Upload\Upload.fsproj" />
-      <ProjectReference Include="..\WebApi\WebApi.fsproj" />
     </ItemGroup>
     
     <ItemGroup>

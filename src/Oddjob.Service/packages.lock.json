@@ -1512,14 +1512,6 @@
         "resolved": "1.0.0",
         "contentHash": "N4KeF3cpcm1PUHym1RmakkzfkEv3GRMyofVv40uXsQhCQeglr2OHNcUk2WOG51AKpGO8ynGpo9M/kFXSzghwug=="
       },
-      "MySqlConnector": {
-        "type": "Transitive",
-        "resolved": "2.3.7",
-        "contentHash": "YiVOxvJ+vAYW8NT9gHv8RxKCDFCSXAObF3z0Ou/8WRv8Lsn2QsxaPW5xEwPE+xCcAq6BGkrI8GTOC09Xg09blQ==",
-        "dependencies": {
-          "Microsoft.Extensions.Logging.Abstractions": "7.0.1"
-        }
-      },
       "NETStandard.Library": {
         "type": "Transitive",
         "resolved": "2.0.3",
@@ -1532,14 +1524,6 @@
         "type": "Transitive",
         "resolved": "13.0.3",
         "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
-      },
-      "NodaTime": {
-        "type": "Transitive",
-        "resolved": "3.1.11",
-        "contentHash": "AYSiCHp1PLzWKVf7hEL3MJ0q9kzOWMNIaTVysXk4XKrDBzK5PF2wpd4LsAl+EIQ2Hbvu+vw4oFaexcXzCuY1lQ==",
-        "dependencies": {
-          "System.Runtime.CompilerServices.Unsafe": "4.7.1"
-        }
       },
       "OpenTelemetry.Api": {
         "type": "Transitive",
@@ -2595,7 +2579,6 @@
           "Microsoft.Data.SqlClient": "[5.2.2, )",
           "Microsoft.Extensions.Configuration": "[9.0.0, )",
           "Microsoft.FSharpLu.Json": "[0.11.7, )",
-          "MySqlConnector": "[2.3.7, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "OpenTelemetry": "[1.12.0, )",
           "OpenTelemetry.Exporter.OpenTelemetryProtocol": "[1.12.0, )",
@@ -2642,24 +2625,6 @@
           "FsHttp": "[15.0.1, )"
         }
       },
-      "ps": {
-        "type": "Project",
-        "dependencies": {
-          "Akka": "[1.5.48, )",
-          "Akka.Cluster.Sharding": "[1.5.48, )",
-          "Akkling": "[0.17.0, )",
-          "Akkling.Persistence": "[0.17.0, )",
-          "Azure.Messaging.ServiceBus": "[7.20.1, )",
-          "Azure.Storage.Blobs": "[12.20.0, )",
-          "Core": "[1.0.0, )",
-          "FSharp.Core": "[9.0.300, )",
-          "FSharpx.Collections": "[3.1.0, )",
-          "Microsoft.Extensions.Azure": "[1.12.0, )",
-          "MySqlConnector": "[2.3.7, )",
-          "NodaTime": "[3.1.11, )",
-          "Phobos.Actor.Cluster": "[2.9.0, )"
-        }
-      },
       "upload": {
         "type": "Project",
         "dependencies": {
@@ -2671,7 +2636,6 @@
           "FSharp.Core": "[9.0.300, )",
           "FSharpx.Collections": "[3.1.0, )",
           "FsToolkit.ErrorHandling": "[4.18.0, )",
-          "MySqlConnector": "[2.3.7, )",
           "Phobos.Actor.Cluster": "[2.9.0, )"
         }
       },
@@ -2703,7 +2667,6 @@
           "Ingesters.GlobalConnect": "[1.0.0, )",
           "NETStandard.Library": "[2.0.3, )",
           "Potion": "[1.0.0, )",
-          "Ps": "[1.0.0, )",
           "RabbitMQ.Client": "[7.1.0, )",
           "Swashbuckle.AspNetCore": "[9.0.1, )",
           "Thoth.Json.Giraffe": "[6.0.0, )",

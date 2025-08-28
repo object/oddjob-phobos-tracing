@@ -36,7 +36,6 @@
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
         <PackageReference Include="Microsoft.FSharpLu.Json" Version="0.11.7" />
         <PackageReference Include="FSharp.SystemTextJson" Version="1.3.13" />
-        <PackageReference Include="MySqlConnector" Version="2.3.7" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="protobuf-net" Version="3.2.30" />
         <PackageReference Include="Quartz" Version="3.14.0" />
@@ -81,7 +80,6 @@
     <Compile Include="Domain\JobTypes.fs" />
     <Compile Include="Domain\ActionContext.fs" />
     <Compile Include="Domain\GlobalConnectActions.fs" />
-    <Compile Include="Domain\ContentActions.fs" />
     <Compile Include="Domain\MediaSetState.fs" />
     <Compile Include="Domain\MediaSetActions.fs" />
     <Compile Include="Domain\MediaSetRetention.fs" />
@@ -90,7 +88,6 @@
     <Compile Include="Dto\MediaSet.fs" />
     <Compile Include="Dto\Events.fs" />
     <Compile Include="Dto\Serialization.fs" />
-    <Compile Include="Granitt/Granitt.fs" />
     <Content Include="Queues/Resources/QueueStats.json" />
     <Compile Include="Queues/QueueResources.fs" />
     <Compile Include="Queues/QueueApi.fs" />
@@ -112,6 +109,5 @@
     <Compile Include="PubSub.fs" />
     <Compile Include="MessageAcker.fs" />
     <Compile Include="MediaSetStateCache.fs" />
-    <Compile Include="JournalEventDeletion.fs" />
   </ItemGroup>
 </Project>

@@ -259,26 +259,22 @@ module MediaSetState =
     type RemainingActions =
         {
             GlobalConnect: GlobalConnectActions
-            Content: ContentActions
         }
 
         static member Zero =
             {
                 GlobalConnect = List.empty
-                Content = List.empty
             }
 
     [<RequireQualifiedAccess>]
     type ActionSelection =
         | GlobalConnect
-        | Granitt
         | Content
 
     module ActionSelection =
         let all =
             [
                 ActionSelection.GlobalConnect
-                ActionSelection.Granitt
                 ActionSelection.Content
             ]
 
@@ -333,18 +329,11 @@ module MediaSetState =
             (set: MediaSetState)
             : RemainingActions =
             let globalConnectActionContext = GlobalConnectActionContext.create logger validationSettings actionEnvironment.GlobalConnect
-            let contentActionContext = ContentActionContext.create logger validationSettings actionEnvironment.Content
             let globalConnectActions =
                 if actionSelection |> List.contains ActionSelection.GlobalConnect then
                     set.Desired |> GlobalConnectActions.forMediaSet globalConnectActionContext mediaSetId set.Current.GlobalConnect
                 else
                     []
-            let contentActions =
-                if actionSelection |> List.contains ActionSelection.Content then
-                    set.Desired |> ContentActions.forMediaSet contentActionContext mediaSetId set.Current.GlobalConnect.Files
-                else
-                    []
             {
                 GlobalConnect = globalConnectActions
-                Content = contentActions
             }

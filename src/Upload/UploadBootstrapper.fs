@@ -23,35 +23,12 @@ module UploadBootstrapperUtils =
                     factory.GetUploadActorProps mediaSetId mediaSetController clientRef clientContentId)
         }
 
-    let createUploadGranittRouter granittConnectionString (system: ActorSystem) =
-        let routerConfig =
-            FromConfig.Instance.WithSupervisorStrategy(getOneForOneRestartSupervisorStrategy system.Log) :> RouterConfig
-        let granittActorProps =
-            Granitt.uploadGranittActor
-                {
-                    GetGranittContext = fun () -> Granitt.Types.getGranittContext granittConnectionString system.Log
-                }
-        let granittRouterProps =
-            { propsNamed "upload-granitt" granittActorProps with
-                Router = Some routerConfig
+    let getUploadClientRef externalGroupIdResolver potionMediator entityId =
+        ClientRef.Potion
+            {
+                PotionMediator = retype potionMediator
+                ExternalGroupIdResolver = externalGroupIdResolver
             }
-        spawn system (makeActorName [ "Upload Granitt" ]) granittRouterProps
-
-    let getUploadClientRef uploadGranittRouter externalGroupIdResolver psMediator potionMediator entityId =
-        match (MediaSetId.parse entityId).ClientId with
-        | Alphanumeric PsClientId ->
-            ClientRef.Ps
-                {
-                    PsMediator = psMediator
-                    GetGranittAccess = fun _ -> uploadGranittRouter
-                }
-        | Alphanumeric PotionClientId ->
-            ClientRef.Potion
-                {
-                    PotionMediator = retype potionMediator
-                    ExternalGroupIdResolver = externalGroupIdResolver
-                }
-        | clientId -> notSupported $"ClientId {clientId} is not supported"
 
     let startPlayabilityCompletionReminder scheduler recipientPath interval mediaSetId logger =
         let bumpMessage: obj =

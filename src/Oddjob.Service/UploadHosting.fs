@@ -21,18 +21,14 @@ open Nrk.Oddjob.Upload.MediaSetPublisher
 open Nrk.Oddjob.Upload.MediaSetStatusPersistence
 open Nrk.Oddjob.Upload.GlobalConnect.GlobalConnectBootstrapperUtils
 open Nrk.Oddjob.Ingesters.GlobalConnect.Bootstrapper
-open Nrk.Oddjob.Ps.PsShardMessages
 open Nrk.Oddjob.Potion.PotionTypes
 
 open ActorsMetadata
 
-let createActionEnvironment oddjobConfig (connectionStrings: ConnectionStrings) s3Client log =
+let createActionEnvironment oddjobConfig (connectionStrings: ConnectionStrings) s3Client log : ActionEnvironment =
     let globalConnectEnvironment = createGlobalConnectEnvironment oddjobConfig s3Client
-    let contentEnvironment =
-        Granitt.createContentEnvironment connectionStrings.GranittMySql log globalConnectEnvironment.RemoteFileSystemResolver
     {
         GlobalConnect = globalConnectEnvironment
-        Content = contentEnvironment
     }
 
 let uploadShardEntityPropsFactory (system: ActorSystem) (registry: IReadOnlyActorRegistry) (resolver: IDependencyResolver) =
@@ -41,7 +37,6 @@ let uploadShardEntityPropsFactory (system: ActorSystem) (registry: IReadOnlyActo
     let connectionStrings = scope.GetService<IOptionsSnapshot<ConnectionStrings>>().Value
     let priorityQueue = registry.Get<GlobalConnectPriorityQueueProxyMarker>() |> typed
     let s3Queue = priorityQueue
-    let granittRouter = createUploadGranittRouter connectionStrings.GranittMySql system
     let amazon = scope.GetService<IS3Api>()
 
     let actorFactories =
@@ -59,23 +54,13 @@ let uploadShardEntityPropsFactory (system: ActorSystem) (registry: IReadOnlyActo
     let actionEnvironment = createActionEnvironment oddjobConfig connectionStrings amazon system.Log
     let uploadShardExtractor = UploadShardExtractor(oddjobConfig.Upload.NumberOfShards)
     let uploadMediator = uploadShardExtractor |> ClusterShards.getUploadMediator system
-    let psShardExtractor = PsShardExtractor(oddjobConfig.Ps.NumberOfShards)
-    let psMediator = psShardExtractor |> ClusterShards.getPsMediator system
     let potionShardExtractor = PotionShardExtractor(oddjobConfig.Potion.NumberOfShards)
     let potionMediator = potionShardExtractor |> ClusterShards.getPotionMediator system
     let externalGroupIdResolver groupId = PotionExternalGroupIdPrefix + groupId
-    let startCompletionReminder mediaSetId =
-        match mediaSetId.ClientId with
-        | Alphanumeric PsClientId ->
-            startPlayabilityCompletionReminder
-                (registry.Get<PsSchedulerMarker>())
-                psMediator.Path
-                (TimeSpan.FromMinutes(float oddjobConfig.Limits.PlaybackCompletionReminderIntervalInMinutes))
-            |> Some
-        | _ -> None
+    let startCompletionReminder mediaSetId = None
 
     Func<string, Props>(fun entityId ->
-        let clientRef = getUploadClientRef granittRouter externalGroupIdResolver psMediator potionMediator entityId
+        let clientRef = getUploadClientRef externalGroupIdResolver potionMediator entityId
         let aprops =
             createMediaSetControllerProps
                 oddjobConfig
@@ -127,10 +112,6 @@ type AkkaConfigurationBuilder with
                         """,
                         HoconAddMode.Prepend
                     )
-                    .WithSingletonActor<MediaSetStatusMediatorMarker, MediaSetMonitor.Actors.MonitorMessage>(
-                        (makeActorName [ "MediaSet Status Mediator" ]),
-                        Props.From(MediatorPublisher.Props())
-                    )
                     .WithSingletonActor<MediaSetStatusPersistanceMarker, MediaSetStatusCommand>(
                         (makeActorName [ "MediaSet Status Persistence" ]),
                         propsNamed "upload-mediaset-status-persistence" <| mediaSetStatusPersistenceActor settings.ConnectionStrings.Akka
@@ -138,15 +119,6 @@ type AkkaConfigurationBuilder with
                     .WithSingletonProxy<GlobalConnectPriorityQueueProxyMarker>(
                         makeActorName [ "GlobalConnect Priority Queue" ],
                         spawnGlobalConnectPriorityQueueProxy
-                    )
-                    .WithSingleton<MediaSetMonitorMarker>(
-                        makeActorName [ "MediaSet Monitor" ],
-                        (fun system registry resolver ->
-                            let oddjobConfig = resolver.GetService<IOptionsSnapshot<OddjobConfig.Settings>>().Value |> makeOddjobConfig
-                            MediaSetMonitor.Actors.monitor settings.ConnectionStrings.Akka oddjobConfig
-                            |> propsNamed "upload-mediaset-monitor"
-                            |> _.ToProps()),
-                        ClusterSingletonOptions(Role = "Upload")
                     )
                     .WithShardRegion<UploadShardMarker>(
                         ClusterShards.UploadMediaSetRegion,

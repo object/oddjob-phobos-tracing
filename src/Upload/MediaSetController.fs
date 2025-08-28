@@ -13,13 +13,11 @@ module MediaSetController =
     open Nrk.Oddjob.Core.Queues
     open Nrk.Oddjob.Core.ShardMessages
     open Nrk.Oddjob.Core.PubSub
-    open Nrk.Oddjob.Core.JournalEventDeletion
 
     open UploadTypes
     open MediaSetStateCache
     open MediaSetStatusPersistence
     open MediaSetPublisher
-    open ContentRepair
 
     /// Used only for bootstrapping
     type IOriginSpecificUploadActorPropsFactory =
@@ -262,7 +260,6 @@ module MediaSetController =
 
         let publishPlayabilityEvent msg =
             match aprops.ClientRef with
-            | ClientRef.Ps p -> (retype p.PsMediator) <! msg
             | ClientRef.Potion _ -> ()
 
         let shouldPublishRemoteStateChange distributionState oldDistributionState =
@@ -290,39 +287,6 @@ module MediaSetController =
                 |> Dto.Events.MediaSetPlayabilityEventDto.fromDomain
                 |> publishPlayabilityEvent
 
-        let validateContentForRepair state mediaSetId requestSource priority ack =
-            let getGranittAccess =
-                match aprops.ClientRef with
-                | ClientRef.Ps p -> p.GetGranittAccess
-                | ClientRef.Potion _ -> fun _ -> typed Nobody.Instance
-            let repairHandlerProps =
-                {
-                    MediaSetController = mailbox.Self
-                    GetGranittAccess = getGranittAccess
-                    FileSystem = aprops.FileSystem
-                    DestinationRoot = aprops.DestinationRoot
-                    ArchiveRoot = aprops.ArchiveRoot
-                    AlternativeArchiveRoot = aprops.AlternativeArchiveRoot
-                    SubtitlesSourceRootWindows = aprops.SubtitlesSourceRootWindows
-                    SubtitlesSourceRootLinux = aprops.SubtitlesSourceRootLinux
-                    PathMappings = aprops.PathMappings
-                    ActionEnvironment = aprops.ActionEnvironment
-                }
-            let contentRepair =
-                getOrSpawnChildActor
-                    mailbox.UntypedContext
-                    (makeActorName [ "Content repair" ])
-                    (propsNamed "upload-mediaset-content-repair" <| contentRepairActor repairHandlerProps)
-            let validateContentCommand =
-                {
-                    MediaSetId = mediaSetId
-                    MediaSetState = state
-                    RequestSource = requestSource
-                    Priority = priority
-                    Ack = ack
-                }
-            contentRepair <! validateContentCommand
-
         let tryResolveClientContentId mediaSetId state =
             if mediaSetId.ClientId = Alphanumeric PotionClientId then
                 let clientContentId =
@@ -348,18 +312,6 @@ module MediaSetController =
                 | _ -> job
             | _ -> job
 
-        let scheduleStorageCleanupReminder (mediaSetId: MediaSetId) =
-            let triggerTime = DateTimeOffset.Now.AddSafely(aprops.StorageCleanupDelay)
-            let message = MediaSetShardMessage.RepairMediaSet(mediaSetId, 0, "storage-cleanup")
-            Reminders.rescheduleReminderTask
-                aprops.UploadScheduler
-                Reminders.StorageCleanup
-                mediaSetId.Value
-                message
-                uploadMediator.Path
-                triggerTime
-                (logDebug mailbox)
-
         let publishOnDemandPlaybackEventOnStateChange
             newMediaSetState
             oldMediaSetState
@@ -383,12 +335,6 @@ module MediaSetController =
             let timestamp = DateTimeOffset.Now
             forwardOriginStateUpdateToOrigin event newState mediaSetId aprops.Origins traceContext
             publishMediaSetStatusUpdate newState mediaSetId timestamp
-            if
-                CurrentGlobalConnectState.hasPendingResources oldState.Current.GlobalConnect
-                && not (CurrentGlobalConnectState.hasPendingResources newState.Current.GlobalConnect)
-                && aprops.StorageCleanupDelay <> TimeSpan.MinValue
-            then
-                scheduleStorageCleanupReminder mediaSetId
             match event with
             | MediaSetEvent.ReceivedRemoteFileState(origin, fileRef, remoteState, remoteResult) ->
                 let msg = MediaSetRemoteFileUpdate.fromDomain mediaSetId origin fileRef remoteState remoteResult timestamp
@@ -526,15 +472,7 @@ module MediaSetController =
                     | :? SaveSnapshotFailure as msg ->
                         logErrorWithExn mailbox msg.Cause "Failed to create snapshot on recovery"
                         state_recovered (state |> MediaSetState.purgeUnusedResources) sessionState
-                    | LifecycleEvent e ->
-                        match e with
-                        | PostRestart exn when (exn :? RestartedForMigrationException) ->
-                            logDebug mailbox "Migrating after restart"
-                            // Need to build mediaSetId from persistentId
-                            let mediaSetId = mailbox.Pid.Split ":" |> Seq.last |> MediaSetId.parse
-                            mailbox.Self <! MediaSetShardMessage.MigrateMediaSet mediaSetId
-                            ignored ()
-                        | _ -> ignored ()
+                    | LifecycleEvent e -> ignored ()
                     | PersistentLifecycleEvent _ -> ignored ()
                     | _ ->
                         mailbox.Stash()
@@ -603,25 +541,6 @@ module MediaSetController =
                             ignored ()
                     | :? MediaSetCommand as msg -> applyCommand state msg
                     | :? MediaSetEvent as msg -> persistEvent msg
-                    | :? ContentValidationResult as result ->
-                        match result with
-                        | ContentIsValidated cmd ->
-                            let job = createRepairJob cmd.RequestSource mediaSetId cmd.Priority
-                            logDebug mailbox $"Created repair job {job}"
-                            dispatchJob job state origins cmd.Ack sessionState.TraceContext
-                            let sessionState = reschedulePassivation sessionState aprops.PassivationTimeoutOnActivation
-                            operating state mediaSetId origins sessionState
-                        | ContentIsRepaired cmd -> // Multiple attempts to repair content indicates invalid state, manual assistance required
-                            if sessionState.ContentIsRepaired then
-                                logWarning mailbox "Unable to repair content in a single attempt, discarding repair job"
-                                ignored ()
-                            else
-                                let sessionState =
-                                    { sessionState with
-                                        ContentIsRepaired = true
-                                    }
-                                mailbox.Self <! MediaSetShardMessage.RepairMediaSet(mediaSetId, cmd.Priority, cmd.RequestSource)
-                                operating state mediaSetId origins sessionState
                     | :? ActorLifecycleCommand as msg ->
                         match msg with
                         | ActorLifecycleCommand.KeepAlive ->
@@ -672,40 +591,9 @@ module MediaSetController =
                     // Wait until the desired state is updated according to the job content
                     actions |> List.iter (fun msg -> (retype mailbox.Self) <! msg)
                     awaiting_desired_state state mediaSetId origins job jobOrigins ack (actions |> List.map MediaSetEvent.fromCommand) sessionState
-            | MediaSetShardMessage.DeactivateMediaSet _ -> passivate "Passivating on Deactivate command" sessionState
             | MediaSetShardMessage.GetMediaSetState _ ->
                 mailbox.Sender() <! Dto.MediaSet.MediaSetState.FromDomain state
                 ignored ()
-            | MediaSetShardMessage.RepairMediaSet(_, priority, requestSource) ->
-                validateContentForRepair state mediaSetId requestSource priority ack
-                ignored ()
-            | MediaSetShardMessage.MigrateMediaSet _ ->
-                if state.SchemaVersion = CurrentSchemaVersion then
-                    logDebug mailbox $"MediaSet has the latest version #{state.SchemaVersion} and doesn't need migration"
-                    ignored ()
-                else if not sessionState.RestoredSnapshot && Seq.isEmpty sessionState.DeprecatedEvents then
-                    logDebug mailbox $"MediaSet has no deprecated events and will be upgraded to the latest schema version #{CurrentSchemaVersion}"
-                    MediaSetEvent.SetSchemaVersion CurrentSchemaVersion |> persistEvent
-                else if sessionState.RestoredSnapshot then
-                    logDebug mailbox "MediaSet has snapshots and will be restarted to recover the state from events"
-                    mailbox.Self <! box (DeleteSnapshotsCommand(state.LastSequenceNr))
-                    delete_snapshot_and_restart state
-                else
-                    logDebug mailbox "MediaSet will be migrated"
-                    start_migration state mediaSetId origins sessionState
-            | MediaSetShardMessage.ActivateMediaSet _ -> ignored ()
-            | MediaSetShardMessage.UpdateMediaSetStateCache _ ->
-                aprops.PersistMediaSetState <| SaveState(mediaSetStateData mediaSetId state)
-                ignored ()
-            | MediaSetShardMessage.ClearMediaSetReminder _ ->
-                logDebug mailbox "Received ClearMediaSet reminder"
-                if state.Desired.IsEmpty() && state.Current.IsEmpty() then
-                    logDebug mailbox "MediaSet has already been cleared"
-                    Reminders.cancelReminderTask aprops.UploadScheduler Reminders.ClearMediaSet mediaSetId.Value (logDebug mailbox)
-                    ignored ()
-                else
-                    let job = MediaSetRetention.createClearJob mediaSetId
-                    handle_shard_message_operating state mediaSetId origins sessionState (MediaSetShardMessage.MediaSetJob job) ack
         and awaiting_desired_state state mediaSetId origins job jobOrigins ack pendingActions sessionState =
             logDebug mailbox "awaiting_desired_state"
             actor {
@@ -779,74 +667,5 @@ module MediaSetController =
         and dispatch_job state mediaSetId origins sessionState dispatchJob' =
             dispatchJob' state sessionState.TraceContext
             operating state mediaSetId origins sessionState
-        and start_migration state mediaSetId origins sessionState =
-            logDebug mailbox "start_migration"
-            let deletionProps: JournalEventDeletionActorProps =
-                {
-                    AkkaConnectionString = aprops.AkkaConnectionString
-                    PersistenceId = $"msc:{normalizeActorNameSegment mediaSetId.Value}"
-                    BatchSize = DeletionBatchSize
-                }
-            let migrator =
-                getOrSpawnChildActor
-                    mailbox.UntypedContext
-                    (makeActorName [ "Migrator" ])
-                    (propsNamed "upload-mediaset-migrator" <| journalEventDeletionActor deletionProps)
-            migrator <! DeleteEvents sessionState.DeprecatedEvents
-            migrating state mediaSetId origins sessionState sessionState.DeprecatedEvents.Length
-        and migrating state mediaSetId origins sessionState remainingEvents =
-            logDebug mailbox "migrating"
-            actor {
-                let! (message: obj) = mailbox.Receive()
-                return!
-                    match message with
-                    | :? JournalEventDeletionResponse as msg ->
-                        match msg with
-                        | DeletedEvents events ->
-                            let remainingEvents = remainingEvents - events.Length
-                            if remainingEvents > 0 then
-                                migrating state mediaSetId origins sessionState remainingEvents
-                            else
-                                logDebug mailbox "Migration completed"
-                                MediaSetEvent.SetSchemaVersion CurrentSchemaVersion |> persistEvent
-                    | :? MediaSetShardMessage as msg ->
-                        match msg with
-                        | MediaSetShardMessage.GetMediaSetState _ ->
-                            mailbox.Sender() <! Dto.MediaSet.MediaSetState.FromDomain state
-                            ignored ()
-                        | _ ->
-                            mailbox.Stash()
-                            ignored ()
-                    | :? MediaSetMessage as msg ->
-                        match msg with
-                        | MediaSetMessage.GetState ->
-                            mailbox.Sender() <! Dto.MediaSet.MediaSetState.FromDomain state
-                            ignored ()
-                    | Persisted mailbox event when (event :? Dto.IProtoBufSerializableEvent) ->
-                        let state, sessionState = applyPersistentEvent event state (Some mediaSetId) sessionState
-                        if event :? Dto.MediaSet.SetSchemaVersion then
-                            operating state mediaSetId origins sessionState
-                        else
-                            migrating state mediaSetId origins sessionState remainingEvents
-                    | LifecycleEvent _ -> ignored ()
-                    | _ ->
-                        mailbox.Stash()
-                        ignored ()
-            }
-        and delete_snapshot_and_restart state =
-            logDebug mailbox "delete_snapshot_and_restart"
-            actor {
-                let! (message: obj) = mailbox.Receive()
-                return!
-                    match message with
-                    | SnapshotCommand cmd -> handleSnapshotCommand state cmd
-                    | SnapshotEvent _ ->
-                        logDebug mailbox "Restarting to execute migration"
-                        raise <| RestartedForMigrationException()
-                    | LifecycleEvent _ -> ignored ()
-                    | _ ->
-                        mailbox.Stash()
-                        ignored ()
-            }
 
         init MediaSetState.Zero SessionState.Zero

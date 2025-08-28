@@ -75,15 +75,6 @@
           "FSharp.Core": "7.0.300"
         }
       },
-      "MySqlConnector": {
-        "type": "Direct",
-        "requested": "[2.3.7, )",
-        "resolved": "2.3.7",
-        "contentHash": "YiVOxvJ+vAYW8NT9gHv8RxKCDFCSXAObF3z0Ou/8WRv8Lsn2QsxaPW5xEwPE+xCcAq6BGkrI8GTOC09Xg09blQ==",
-        "dependencies": {
-          "Microsoft.Extensions.Logging.Abstractions": "7.0.1"
-        }
-      },
       "Phobos.Actor.Cluster": {
         "type": "Direct",
         "requested": "[2.9.0, )",
@@ -1659,7 +1650,6 @@
           "Microsoft.Data.SqlClient": "[5.2.2, )",
           "Microsoft.Extensions.Configuration": "[9.0.0, )",
           "Microsoft.FSharpLu.Json": "[0.11.7, )",
-          "MySqlConnector": "[2.3.7, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "OpenTelemetry": "[1.12.0, )",
           "OpenTelemetry.Exporter.OpenTelemetryProtocol": "[1.12.0, )",
