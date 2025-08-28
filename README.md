@@ -20,10 +20,6 @@ You need to add two custom nuget feeds.
 - Phobos
   - Find URL from sdkbin. 
   - Create an account with your @nrk.no e-mail. Use your personal username and password to access the nuget feed
-- NRK Github Nuget feed
-  - URL: https://nuget.pkg.github.com/nrkno/index.json
-  - Username: nrkno
-  - Password: a `NRK_GITHUB_TOKEN` with `read:packages` scope from the NRK github org (https://github.com/settings/tokens)
 
 ```shell
 dotnet tool restore
@@ -36,7 +32,7 @@ To resolve this, go to `settings > Build, Execution, Deployment > NuGet > .NET C
 This will result in same behaviour across Rider and Terminal restoration of nuget packages._
 
 ### Environment variables
-Using your IDE you can login and access the different nuget feed. However, we recommend to add the nuget feed tokens, usernames and passwords to environment variables. The nuget.config file expects three variables `NRK_GITHUB_TOKEN`, `PHOBOS_NUGET_PASSWORD` and `PHOBOS_NUGET_USERNAME`. If you choose to use environment varables, you need to add these three variables as environment variables   
+Using your IDE you can login and access the different nuget feed. However, we recommend to add the nuget feed tokens, usernames and passwords to environment variables. The nuget.config file expects variables `PHOBOS_NUGET_PASSWORD` and `PHOBOS_NUGET_USERNAME`. If you choose to use environment varables, you need to add these three variables as environment variables   
 
 ## Running services locally
 To get secrets locally, you need to add `appsettings.Development.json` to Bootstrapper/config/appsettings.
@@ -92,11 +88,11 @@ read -s FILE_SHARE_PASSWORD
 export FILE_SHARE_PASSWORD
 ```
 
-You also need to provide secrets for NRK_GITHUB_TOKEN, PHOBOS_NUGET_USERNAME and PHOBOS_NUGET_PASSWORD.
+You also need to provide secrets for PHOBOS_NUGET_USERNAME and PHOBOS_NUGET_PASSWORD.
 
 Build the images:
 ```shell
-docker build . -t oddjob:latest --secret id=NRK_GITHUB_TOKEN --secret id=PHOBOS_NUGET_USERNAME --secret id=PHOBOS_NUGET_PASSWORD
+docker build . -t oddjob:latest --secret id=PHOBOS_NUGET_USERNAME --secret id=PHOBOS_NUGET_PASSWORD
 ```
 
 Then run docker compose to start all services:

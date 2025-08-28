@@ -9,7 +9,6 @@ services:
     build:
       context: ..
       secrets:
-        - NRK_GITHUB_TOKEN
         - PHOBOS_NUGET_USERNAME
         - PHOBOS_NUGET_PASSWORD
     ports:
@@ -67,8 +66,6 @@ volumes:
       device: //manas01.felles.ds.nrk.no/Media_share/potion/
         
 secrets:
-  NRK_GITHUB_TOKEN:
-    environment: NRK_GITHUB_TOKEN
   PHOBOS_NUGET_USERNAME:
     environment: PHOBOS_NUGET_USERNAME
   PHOBOS_NUGET_PASSWORD:

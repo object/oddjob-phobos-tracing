@@ -11,7 +11,6 @@ env:
   OCTOPUS_API_KEY: ${{ secrets.OCTOPUS_API_KEY }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
-  NRK_GITHUB_TOKEN: ${{ secrets.PLATTFORM_GITHUB_PACKAGES_READ_TOKEN }}
   PHOBOS_NUGET_PASSWORD: ${{ secrets.PHOBOS_NUGET_PASSWORD }}
   PHOBOS_NUGET_USERNAME: ${{ secrets.PHOBOS_NUGET_USERNAME }}
 

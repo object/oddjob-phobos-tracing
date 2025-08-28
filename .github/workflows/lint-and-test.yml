@@ -18,7 +18,6 @@ env:
   OCTOPUS_URL: ${{ vars.OCTOPUS_URL }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
-  NRK_GITHUB_TOKEN: ${{ secrets.PLATTFORM_GITHUB_PACKAGES_READ_TOKEN }}
   PHOBOS_NUGET_PASSWORD: ${{ secrets.PHOBOS_NUGET_PASSWORD }}
   PHOBOS_NUGET_USERNAME: ${{ secrets.PHOBOS_NUGET_USERNAME }}
     

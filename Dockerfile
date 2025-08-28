@@ -6,7 +6,6 @@ COPY . ./
 
 # Restore as distinct layers
 RUN \
-	--mount=type=secret,id=NRK_GITHUB_TOKEN,env=NRK_GITHUB_TOKEN \
 	--mount=type=secret,id=PHOBOS_NUGET_USERNAME,env=PHOBOS_NUGET_USERNAME \
 	--mount=type=secret,id=PHOBOS_NUGET_PASSWORD,env=PHOBOS_NUGET_PASSWORD \
 	dotnet restore src/Oddjob.Service/Oddjob.Service.fsproj
