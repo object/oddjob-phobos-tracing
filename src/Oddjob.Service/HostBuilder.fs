@@ -33,12 +33,9 @@ module HostBuilder =
     open Nrk.Oddjob.Core
     open Nrk.Oddjob.Core.Config
     open Nrk.Oddjob.Core.Queues
-    open Nrk.Oddjob.Core.SchedulerActors
 
     open ActorsMetadata
     open GlobalConnectHosting
-    open PotionHosting
-    open UploadHosting
 
     [<Literal>]
     let ApplicationName = "Oddjob.Service"
@@ -113,9 +110,6 @@ module HostBuilder =
 
     let configureServices (configRoot: IConfigurationRoot) (runtimeSettings: RuntimeSettings) (services: IServiceCollection) =
 
-        let configureServiceBusClient (builder: AzureClientFactoryBuilder) serviceBusName =
-            builder.AddServiceBusClient(configRoot.GetConnectionString serviceBusName).WithName(serviceBusName) |> ignore
-
         let activityContext = ActivitySourceContext.Create(getAssemblyName ())
         let rmqApi = QueueApiImpl.OddjobRabbitMqApi(runtimeSettings.OddjobConfig, runtimeSettings.QueuesConfig, activityContext)
         services.AddSingleton<IRabbitMqApi>(rmqApi) |> ignore
@@ -126,9 +120,6 @@ module HostBuilder =
         if (runtimeSettings.ClusterRoles |> List.contains ClusterRole.GlobalConnect) then
             configureS3Services configRoot runtimeSettings services
             configureGlobalConnectMetrics services
-
-        if (runtimeSettings.ClusterRoles |> List.contains ClusterRole.Upload) then
-            configureS3Services configRoot runtimeSettings services
 
     let parseInstrumentationConfigFeatures (runtimeSettings: RuntimeSettings) =
         match getFeatureFlag runtimeSettings.FeatureFlags ConfigKey.OtelInstrumentation "None" with
@@ -260,18 +251,15 @@ module HostBuilder =
                     serializers {
                       hyperion = "Akka.Serialization.HyperionSerializer, Akka.Serialization.Hyperion"
                       protobuf-mediaset = "Nrk.Oddjob.Core.Dto.Serialization+ProtobufSerializer, Core"
-                      protobuf-potion = "Nrk.Oddjob.Potion.PotionPersistence+ProtobufSerializer, Potion"
                     }
                     serialization-bindings {
                       "System.Object" = hyperion
                       "Nrk.Oddjob.Core.Dto.IProtoBufSerializable, Core" = protobuf-mediaset
-                      "Nrk.Oddjob.Potion.PotionPersistence+IProtoBufSerializable, Potion" = protobuf-potion
                     }
                     serialization-identifiers {
                       "Akka.Serialization.HyperionSerializer, Akka.Serialization.Hyperion" = -5
                       "Akka.Serialization.NewtonSoftJsonSerializer, Akka" = 1
                       "Nrk.Oddjob.Core.Dto.Serialization+ProtobufSerializer, Core" = 126
-                      "Nrk.Oddjob.Potion.PotionPersistence+ProtobufSerializer, Potion" = 130
                     }
                   }
                 }
@@ -292,17 +280,6 @@ module HostBuilder =
                 Map.ofSeq
                     [
                         (ClusterRole.GlobalConnect, _.WithGlobalConnect(configRoot, settings))
-                        (ClusterRole.Potion, _.WithUploadProxy(configRoot, settings).WithPotion(configRoot, settings))
-                        (ClusterRole.Upload, _.WithUpload(configRoot, settings))
-                        (ClusterRole.ScheduledTrigger,
-                         fun b ->
-                             b.WithSingleton<SchedulerTriggerMarker>(
-                                 makeActorName [ "Scheduled Messages Trigger" ],
-                                 (fun system registry resolver ->
-                                     let rmqApi = resolver.GetService<IRabbitMqApi>()
-                                     triggerScheduledQueueMessagesActor connectionStrings.Akka rmqApi |> propsNamed "scheduler-trigger-queue" |> _.ToProps()),
-                                 ClusterSingletonOptions(Role = "ScheduledTrigger")
-                             ))
                     ]
             this |> applyRoles roles rolesConfigurator
 

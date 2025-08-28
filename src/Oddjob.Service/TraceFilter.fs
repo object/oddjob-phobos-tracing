@@ -17,7 +17,6 @@ type TraceFilter() =
             | :? Nrk.Oddjob.Core.PubSub.PubSubMessages.IngesterCommandStatus
             | :? Nrk.Oddjob.Core.PubSub.PubSubMessages.PriorityQueueEvent
             | :? Nrk.Oddjob.Core.MediaSetStateCache.MediaSetStateCacheCommand
-            | :? Nrk.Oddjob.Upload.MediaSetStatusPersistence.MediaSetStatusCommand
             | :? Nrk.Oddjob.Core.PubSub.PubSubMessages.MediaSetStatusUpdate
             | :? Nrk.Oddjob.Core.PubSub.PubSubMessages.MediaSetRemoteResourceUpdate -> false
             | :? Nrk.Oddjob.Core.Dto.Events.OddjobEventDto as msg when msg.IsCommandStatus ->
