@@ -60,7 +60,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "9.0.x"
 
@@ -90,7 +90,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "9.0.x"
         
@@ -114,7 +114,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "9.0.x"
           cache: true
@@ -133,7 +133,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
           
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "9.0.x"
           
@@ -158,7 +158,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
           
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "9.0.x"
           
