@@ -57,7 +57,7 @@ jobs:
       id-token: write
     steps:
       - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: oddjob-system-tests
 
