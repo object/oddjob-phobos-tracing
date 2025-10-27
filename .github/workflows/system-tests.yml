@@ -39,7 +39,7 @@ jobs:
           args: zip -qq -r oddjob-system-tests.zip dist
 
       - name: upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: oddjob-system-tests
           path: oddjob-system-tests.zip
